@@ -15,7 +15,7 @@ export function TrustBar() {
   const marqueeItems = [...brands, ...brands];
 
   return (
-    <section className="py-20 bg-brand-onyx text-white relative z-20 overflow-hidden border-b border-brand-teal/10">
+    <section id="trustbar" className="py-20 bg-brand-onyx text-white relative z-20 overflow-hidden border-b border-brand-teal/10">
       {/* Background Subtle Sparkle overlay */}
       <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#256951_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 

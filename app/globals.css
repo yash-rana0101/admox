@@ -54,3 +54,7 @@ body {
 .webgl-container {
   z-index: -10 !important;
 }
+
+.webgl-container.overlay-mode {
+  z-index: 55 !important;
+}

@@ -4,12 +4,48 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useScroll, useSpring } from 'framer-motion';
 import { interpolateSections } from './WebGLConfig';
+import { getPillarEffects } from './pillarEffects';
+
+function getElementWorldCoords(
+  el: HTMLElement,
+  camera: THREE.PerspectiveCamera,
+  targetZ: number = 0
+) {
+  const rect = el.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  // Convert to Normalized Device Coordinates (NDC)
+  const ndcX = (centerX / window.innerWidth) * 2 - 1;
+  const ndcY = -(centerY / window.innerHeight) * 2 + 1;
+
+  // Unproject from camera
+  const distance = camera.position.z - targetZ;
+  const vFov = (camera.fov * Math.PI) / 180;
+  const planeHeight = 2 * Math.tan(vFov / 2) * distance;
+  const planeWidth = planeHeight * camera.aspect;
+
+  const x = ndcX * (planeWidth / 2);
+  const y = ndcY * (planeHeight / 2);
+
+  // Compute world width to match scale
+  const worldWidth = (rect.width / window.innerWidth) * planeWidth;
+
+  return { x, y, worldWidth };
+}
 
 export function WebGLCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<number>(0);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const activePillarRef = useRef<number>(-1);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__webglActive = true;
+      window.dispatchEvent(new CustomEvent('webgl-ready'));
+    }
+  }, []);
 
   const { scrollYProgress } = useScroll();
 
@@ -48,14 +84,14 @@ export function WebGLCanvas() {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Running WebGL sync variables for Pillars
+    // Pillar hover animation state
     let currentSpeedMult = 1.0;
     let currentEmissiveInt = 1.2;
     let currentScaleOffset = 0.0;
     let currentOscillateZ = 0.0;
     let currentStarOffsetBonus = 0.0;
 
-    // 1. Scene, Camera, Renderer
+
     const width = window.innerWidth;
     const height = window.innerHeight;
     const scene = new THREE.Scene();
@@ -69,7 +105,7 @@ export function WebGLCanvas() {
     renderer.toneMappingExposure = 1.0;
     mountRef.current.appendChild(renderer.domElement);
 
-    // 2. Geometries (Chevron "A" & Sparkle)
+
     const chevronShape = new THREE.Shape();
     chevronShape.moveTo(-1.0, -0.8);
     chevronShape.lineTo(0.0, 1.0);
@@ -112,7 +148,7 @@ export function WebGLCanvas() {
     });
     starGeo.center();
 
-    // 3. Materials
+
     const chevronMat = new THREE.MeshPhysicalMaterial({
       color: 0x252f2c, // Onyx Black
       roughness: 0.15,
@@ -135,12 +171,11 @@ export function WebGLCanvas() {
       opacity: 1.0,
     });
 
-    // 4. Create Group & Meshes
+
     const mainGroup = new THREE.Group();
     const chevronMesh = new THREE.Mesh(chevronGeo, chevronMat);
     const starMesh = new THREE.Mesh(starGeo, starMat);
 
-    // Position star at the base of the Chevron A
     starMesh.position.y = -0.3;
     starMesh.position.z = 0.1;
 
@@ -181,45 +216,80 @@ export function WebGLCanvas() {
     const tick = () => {
       // Calculate smooth pixel scroll position using our useSpring motion value
       const totalScrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const smoothScrollY = scrollRef.current * (totalScrollHeight > 0 ? totalScrollHeight : 1);
+      const maxScrollY = totalScrollHeight > 0 ? totalScrollHeight : 1;
+      const smoothScrollY = scrollRef.current * maxScrollY;
 
-      const interpolated = interpolateSections(smoothScrollY);
       const isMobile = window.innerWidth < 768;
+      let interpolated;
 
-      // Adjust positions and sizes dynamically based on responsive rules
+      if (isMobile) {
+        // Mobile: skip logo transitions, use section keyframes directly
+        // Pass hero values as logo coords so interpolation just starts at hero
+        const heroFallback = { x: 0, y: 0.3, z: 0, rx: 0.1, ry: -0.2, rz: 0, scale: 0.7, starOffset: 0, opacity: 0.8 };
+        interpolated = interpolateSections(smoothScrollY, maxScrollY, heroFallback, heroFallback);
+        // Remove overlay mode on mobile
+        if (mountRef.current) mountRef.current.classList.remove('overlay-mode');
+      } else {
+        // Desktop: full logo breakout/settle transitions
+        let navLogoCoords = { x: -3.2, y: 3.5, z: 0.0, rx: 0, ry: 0, rz: 0, scale: 0.14, starOffset: 0.0, opacity: 1.0 };
+        let footerLogoCoords = { x: -3.2, y: -3.5, z: 0.0, rx: 0, ry: 0, rz: 0, scale: 0.14, starOffset: 0.0, opacity: 1.0 };
+
+        const navLogoEl = document.getElementById('navbar-logo-svg');
+        const footerLogoEl = document.getElementById('footer-logo-svg');
+
+        if (navLogoEl) {
+          const coords = getElementWorldCoords(navLogoEl, camera, 0);
+          navLogoCoords = {
+            x: coords.x, y: coords.y, z: 0.0,
+            rx: 0, ry: 0, rz: 0,
+            scale: (coords.worldWidth / 2.0) * 1.05,
+            starOffset: 0.0, opacity: 1.0,
+          };
+        }
+
+        if (footerLogoEl) {
+          const coords = getElementWorldCoords(footerLogoEl, camera, 0);
+          footerLogoCoords = {
+            x: coords.x, y: coords.y, z: 0.0,
+            rx: 0, ry: 0, rz: 0,
+            scale: (coords.worldWidth / 2.0) * 1.05,
+            starOffset: 0.0, opacity: 1.0,
+          };
+        }
+
+        interpolated = interpolateSections(smoothScrollY, maxScrollY, navLogoCoords, footerLogoCoords);
+
+        // Dynamic Z-index overlay management (desktop only)
+        const startThreshold = 120;
+        const endThreshold = 150;
+        const shouldOverlay = smoothScrollY < startThreshold || smoothScrollY > maxScrollY - endThreshold;
+        if (mountRef.current) {
+          if (shouldOverlay) {
+            mountRef.current.classList.add('overlay-mode');
+          } else {
+            mountRef.current.classList.remove('overlay-mode');
+          }
+        }
+      }
+
+      // Adjust positions for responsive layout
       let targetX = interpolated.x;
       let targetY = interpolated.y;
       let targetScale = interpolated.scale;
 
       if (isMobile) {
-        targetX = 0; // Centered
-        targetY = interpolated.y * 0.9;
-        targetScale = interpolated.scale * 0.65;
+        targetX = 0;
+        targetY = interpolated.y * 0.8;
+        targetScale = interpolated.scale * 0.55;
       }
 
       // Calculate dynamic WebGL targets based on the active hovered pillar index
-      let targetSpeedMult = 1.0;
-      let targetEmissiveInt = 1.2;
-      let targetScaleOffset = 0.0;
-      let targetOscillateZ = 0.0;
-      let targetStarOffsetBonus = 0.0;
-
-      const activePillar = activePillarRef.current;
-      if (activePillar === 0) { // Creativity
-        targetSpeedMult = 1.8;
-        targetStarOffsetBonus = 0.15; // float star further out
-      } else if (activePillar === 1) { // Innovation
-        targetSpeedMult = 3.8; // spin very fast
-        targetEmissiveInt = 4.0; // intense teal glow
-      } else if (activePillar === 2) { // Performance
-        targetSpeedMult = 0.4; // slow deliberate spin
-        targetScaleOffset = 0.18; // pulse bigger
-      } else if (activePillar === 3) { // Storytelling
-        targetOscillateZ = Math.sin(Date.now() * 0.003) * 0.18; // wavy Z-axis rock
-      } else if (activePillar === 4) { // Growth
-        targetSpeedMult = 2.4;
-        targetScaleOffset = 0.08;
-      }
+      const pillarFx = getPillarEffects(activePillarRef.current);
+      const targetSpeedMult = pillarFx.speedMult;
+      const targetEmissiveInt = pillarFx.emissiveInt;
+      const targetScaleOffset = pillarFx.scaleOffset;
+      const targetOscillateZ = pillarFx.oscillateZ;
+      const targetStarOffsetBonus = pillarFx.starOffsetBonus;
 
       // Smoothly interpolate current values towards targets
       currentSpeedMult = THREE.MathUtils.lerp(currentSpeedMult, targetSpeedMult, 0.08);

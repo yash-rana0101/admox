@@ -15,42 +15,86 @@ export interface SectionKeyframe {
   values: KeyframeValues;
 }
 
+/**
+ * Section keyframes — every placement is intentional:
+ *
+ * hero:     Top-right of viewport, beside the hero headline. Facing the user.
+ * trustbar: Far-right edge, scaled small & dim. Acts as a watermark while stats are in focus.
+ * services: Far-right edge, small & subtle. Content cards are the star here, model stays out of the way.
+ * pillars:  Right side, medium scale. Visible companion to the accordion list on the left.
+ * about:    Center, large & pushed back (z). Glowing watermark behind the Manifesto text.
+ * work:     Far-right edge again, small. Cards are the focus, model is a subtle accent.
+ * contact:  Center-left, fading down. Begins settling towards footer logo position.
+ */
 export const sectionsConfig: SectionKeyframe[] = [
   {
-    id: 'hero', // Hero Section (floats on the right of header text)
-    values: { x: 2.8, y: 0.1, z: 0, rx: 0.2, ry: -0.5, rz: -0.1, scale: 1.2, starOffset: 0.0, opacity: 1 },
+    id: 'hero',
+    values: { x: 3.5, y: 0.5, z: 0, rx: 0.15, ry: -0.3, rz: -0.05, scale: 1.1, starOffset: 0.0, opacity: 0.9 },
   },
   {
-    id: 'services', // Services Section (floats on the left beside services card)
-    values: { x: -2.8, y: -0.2, z: -0.5, rx: 0.4, ry: 0.8, rz: 0.2, scale: 0.9, starOffset: 0.25, opacity: 1 },
+    id: 'trustbar',
+    values: { x: 5.0, y: 0.0, z: -1.0, rx: 0.1, ry: -0.2, rz: 0.0, scale: 0.5, starOffset: 0.05, opacity: 0.25 },
   },
   {
-    id: 'pillars', // Pillars Section (floats on the right of pillars list)
-    values: { x: 2.8, y: 0.1, z: -0.3, rx: -0.2, ry: 1.5, rz: -0.2, scale: 1.0, starOffset: 0.35, opacity: 1 },
+    id: 'services',
+    values: { x: 5.2, y: -0.3, z: -1.5, rx: 0.3, ry: 0.6, rz: 0.1, scale: 0.45, starOffset: 0.1, opacity: 0.2 },
   },
   {
-    id: 'about', // Manifesto Section (glowing centered watermark backdrop)
-    values: { x: 0.0, y: 0.0, z: 1.2, rx: 0.1, ry: 2.2, rz: 0.1, scale: 1.35, starOffset: 0.05, opacity: 1 },
+    id: 'pillars',
+    values: { x: 4.5, y: 0.0, z: -0.2, rx: 0.1, ry: -0.35, rz: 0.0, scale: 0.85, starOffset: 0.2, opacity: 0.85 },
   },
   {
-    id: 'work', // Who We Serve Section (floats on the right side)
-    values: { x: 2.8, y: -0.3, z: -0.5, rx: 0.5, ry: -0.5, rz: 0.3, scale: 0.8, starOffset: 0.2, opacity: 1 },
+    id: 'about',
+    values: { x: 0.0, y: 0.0, z: 1.5, rx: 0.05, ry: 2.0, rz: 0.05, scale: 1.3, starOffset: 0.0, opacity: 0.08 },
   },
   {
-    id: 'contact', // CTA Section (fades out down off-screen)
-    values: { x: 0.0, y: -4.0, z: -1.0, rx: 0.8, ry: 0.5, rz: 0.0, scale: 0.4, starOffset: 0.0, opacity: 0 },
+    id: 'work',
+    values: { x: 5.0, y: -0.2, z: -1.0, rx: 0.3, ry: -0.4, rz: 0.15, scale: 0.5, starOffset: 0.1, opacity: 0.25 },
+  },
+  {
+    id: 'contact',
+    values: { x: 0.0, y: -3.5, z: -2.0, rx: 0.0, ry: 0.0, rz: 0.0, scale: 0.1, starOffset: 0.0, opacity: 0.0 },
   },
 ];
 
-export function interpolateSections(scrollY: number): KeyframeValues {
-  // 1. Get offsetTop positions of each section element
+export function interpolateSections(
+  scrollY: number,
+  maxScrollY: number,
+  navLogoCoords: KeyframeValues,
+  footerLogoCoords: KeyframeValues
+): KeyframeValues {
+  const startThreshold = 120;
+  const endThreshold = 150;
+
+  // 1. Navbar logo → Hero breakout
+  if (scrollY < startThreshold) {
+    const t = scrollY / startThreshold;
+    const easedT = t * t * (3 - 2 * t);
+    return lerpKeyframes(navLogoCoords, sectionsConfig[0].values, easedT);
+  }
+
+  // 2. Contact → Footer logo settle
+  if (scrollY > maxScrollY - endThreshold) {
+    const t = Math.min(1, (scrollY - (maxScrollY - endThreshold)) / endThreshold);
+    const easedT = t * t * (3 - 2 * t);
+    return lerpKeyframes(sectionsConfig[sectionsConfig.length - 1].values, footerLogoCoords, easedT);
+  }
+
+  // 3. Section-to-section interpolation
   const offsets = sectionsConfig.map((sec, idx) => {
-    if (idx === 0) return 0;
+    if (idx === 0) return startThreshold;
     const el = document.getElementById(sec.id);
-    return el ? el.offsetTop : window.innerHeight * idx;
+    if (el) return el.offsetTop;
+    // Fallback: distribute evenly
+    return startThreshold + ((maxScrollY - endThreshold - startThreshold) / (sectionsConfig.length - 1)) * idx;
   });
 
-  // 2. Find current section interval
+  // Clamp: if past the last offset, return last section values
+  if (scrollY >= offsets[offsets.length - 1]) {
+    return sectionsConfig[sectionsConfig.length - 1].values;
+  }
+
+  // Find the two surrounding keyframes
   let prevIdx = 0;
   let nextIdx = sectionsConfig.length - 1;
 
@@ -62,27 +106,24 @@ export function interpolateSections(scrollY: number): KeyframeValues {
     }
   }
 
-  // 3. Calculate interpolation factor
-  const prevOffset = offsets[prevIdx];
-  const nextOffset = offsets[nextIdx];
-  const range = nextOffset - prevOffset;
-  const t = range === 0 ? 0 : (scrollY - prevOffset) / range;
-  const easedT = t * t * (3 - 2 * t); // Smoothstep
+  const range = offsets[nextIdx] - offsets[prevIdx];
+  const t = range === 0 ? 0 : (scrollY - offsets[prevIdx]) / range;
+  const easedT = t * t * (3 - 2 * t);
 
-  const lerp = (a: number, b: number) => a + (b - a) * easedT;
+  return lerpKeyframes(sectionsConfig[prevIdx].values, sectionsConfig[nextIdx].values, easedT);
+}
 
-  const prevVals = sectionsConfig[prevIdx].values;
-  const nextVals = sectionsConfig[nextIdx].values;
-
+function lerpKeyframes(a: KeyframeValues, b: KeyframeValues, t: number): KeyframeValues {
+  const lerp = (from: number, to: number) => from + (to - from) * t;
   return {
-    x: lerp(prevVals.x, nextVals.x),
-    y: lerp(prevVals.y, nextVals.y),
-    z: lerp(prevVals.z, nextVals.z),
-    rx: lerp(prevVals.rx, nextVals.rx),
-    ry: lerp(prevVals.ry, nextVals.ry),
-    rz: lerp(prevVals.rz, nextVals.rz),
-    scale: lerp(prevVals.scale, nextVals.scale),
-    starOffset: lerp(prevVals.starOffset, nextVals.starOffset),
-    opacity: lerp(prevVals.opacity, nextVals.opacity),
+    x: lerp(a.x, b.x),
+    y: lerp(a.y, b.y),
+    z: lerp(a.z, b.z),
+    rx: lerp(a.rx, b.rx),
+    ry: lerp(a.ry, b.ry),
+    rz: lerp(a.rz, b.rz),
+    scale: lerp(a.scale, b.scale),
+    starOffset: lerp(a.starOffset, b.starOffset),
+    opacity: lerp(a.opacity, b.opacity),
   };
 }

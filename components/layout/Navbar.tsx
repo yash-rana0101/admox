@@ -9,13 +9,32 @@ import { Button } from '../ui/Button';
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [webglActive, setWebglActive] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (typeof window !== 'undefined') {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 20);
+        setIsAtTop(window.scrollY < 40);
+      };
+      
+      const handleWebglReady = () => setWebglActive(true);
+      
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('webgl-ready', handleWebglReady);
+      
+      if ((window as any).__webglActive) {
+        setWebglActive(true);
+      }
+      
+      handleScroll();
+
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('webgl-ready', handleWebglReady);
+      };
+    }
   }, []);
 
   const navLinks = [
@@ -38,6 +57,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group select-none">
             <svg
+              id="navbar-logo-svg"
               className="w-6.5 h-6.5 text-white transition-transform duration-500 group-hover:rotate-12"
               viewBox="0 0 100 100"
               fill="none"
@@ -45,11 +65,17 @@ export function Navbar() {
             >
               {/* Chevron A */}
               <path
+                className={`transition-opacity duration-500 ${
+                  webglActive && isAtTop ? 'opacity-0' : 'opacity-100'
+                }`}
                 d="M50 15 L88 85 L70 85 L50 45 L30 85 L12 85 Z"
                 fill="currentColor"
               />
               {/* Sparkle Star */}
               <path
+                className={`transition-opacity duration-500 ${
+                  webglActive && isAtTop ? 'opacity-0' : 'opacity-100'
+                }`}
                 d="M50 63 L53 73 L63 76 L53 79 L50 89 L47 79 L37 76 L47 73 Z"
                 fill="var(--color-brand-teal)"
               />
@@ -113,7 +139,7 @@ export function Navbar() {
               <div className="w-full max-w-xs pt-4 border-t border-white/10 flex justify-center">
                 <Button
                   href="#contact"
-                  className="w-full text-center py-2.5"
+                  className="w-full text-center py-2.5 rounded-full"
                   onClick={() => setIsOpen(false)}
                 >
                   Start a Project →

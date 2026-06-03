@@ -3,102 +3,26 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useScroll, useSpring } from 'framer-motion';
-
-interface KeyframeValues {
-  x: number;
-  y: number;
-  z: number;
-  rx: number;
-  ry: number;
-  rz: number;
-  scale: number;
-  starOffset: number;
-  opacity: number;
-}
-
-interface SectionKeyframe {
-  id: string;
-  values: KeyframeValues;
-}
-
-const sectionsConfig: SectionKeyframe[] = [
-  {
-    id: 'hero', // Hero Section (floats on the right of header text)
-    values: { x: 2.8, y: 0.1, z: 0, rx: 0.2, ry: -0.5, rz: -0.1, scale: 1.2, starOffset: 0.0, opacity: 1 },
-  },
-  {
-    id: 'services', // Services Section (floats on the left beside services card)
-    values: { x: -2.8, y: -0.2, z: -0.5, rx: 0.4, ry: 0.8, rz: 0.2, scale: 0.9, starOffset: 0.25, opacity: 1 },
-  },
-  {
-    id: 'pillars', // Pillars Section (floats on the right of pillars list)
-    values: { x: 2.8, y: 0.1, z: -0.3, rx: -0.2, ry: 1.5, rz: -0.2, scale: 1.0, starOffset: 0.35, opacity: 1 },
-  },
-  {
-    id: 'about', // Manifesto Section (glowing centered watermark backdrop)
-    values: { x: 0.0, y: 0.0, z: 1.2, rx: 0.1, ry: 2.2, rz: 0.1, scale: 1.35, starOffset: 0.05, opacity: 1 },
-  },
-  {
-    id: 'work', // Who We Serve Section (floats on the right side)
-    values: { x: 2.8, y: -0.3, z: -0.5, rx: 0.5, ry: -0.5, rz: 0.3, scale: 0.8, starOffset: 0.2, opacity: 1 },
-  },
-  {
-    id: 'contact', // CTA Section (fades out down off-screen)
-    values: { x: 0.0, y: -4.0, z: -1.0, rx: 0.8, ry: 0.5, rz: 0.0, scale: 0.4, starOffset: 0.0, opacity: 0 },
-  },
-];
-
-function interpolateSections(scrollY: number): KeyframeValues {
-  // 1. Get offsetTop positions of each section element
-  const offsets = sectionsConfig.map((sec, idx) => {
-    if (idx === 0) return 0;
-    const el = document.getElementById(sec.id);
-    return el ? el.offsetTop : window.innerHeight * idx;
-  });
-
-  // 2. Find current section interval
-  let prevIdx = 0;
-  let nextIdx = sectionsConfig.length - 1;
-
-  for (let i = 0; i < offsets.length - 1; i++) {
-    if (scrollY >= offsets[i] && scrollY <= offsets[i + 1]) {
-      prevIdx = i;
-      nextIdx = i + 1;
-      break;
-    }
-  }
-
-  // 3. Calculate interpolation factor
-  const prevOffset = offsets[prevIdx];
-  const nextOffset = offsets[nextIdx];
-  const range = nextOffset - prevOffset;
-  const t = range === 0 ? 0 : (scrollY - prevOffset) / range;
-  const easedT = t * t * (3 - 2 * t); // Smoothstep
-
-  const lerp = (a: number, b: number) => a + (b - a) * easedT;
-
-  const prevVals = sectionsConfig[prevIdx].values;
-  const nextVals = sectionsConfig[nextIdx].values;
-
-  return {
-    x: lerp(prevVals.x, nextVals.x),
-    y: lerp(prevVals.y, nextVals.y),
-    z: lerp(prevVals.z, nextVals.z),
-    rx: lerp(prevVals.rx, nextVals.rx),
-    ry: lerp(prevVals.ry, nextVals.ry),
-    rz: lerp(prevVals.rz, nextVals.rz),
-    scale: lerp(prevVals.scale, nextVals.scale),
-    starOffset: lerp(prevVals.starOffset, nextVals.starOffset),
-    opacity: lerp(prevVals.opacity, nextVals.opacity),
-  };
-}
+import { interpolateSections } from './WebGLConfig';
 
 export function WebGLCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<number>(0);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const activePillarRef = useRef<number>(-1);
 
   const { scrollYProgress } = useScroll();
+
+  useEffect(() => {
+    const handlePillarHover = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      activePillarRef.current = customEvent.detail;
+    };
+    window.addEventListener('webgl-pillar-hover', handlePillarHover);
+    return () => {
+      window.removeEventListener('webgl-pillar-hover', handlePillarHover);
+    };
+  }, []);
   const smoothScroll = useSpring(scrollYProgress, {
     stiffness: 90,
     damping: 25,
@@ -123,6 +47,13 @@ export function WebGLCanvas() {
 
   useEffect(() => {
     if (!mountRef.current) return;
+
+    // Running WebGL sync variables for Pillars
+    let currentSpeedMult = 1.0;
+    let currentEmissiveInt = 1.2;
+    let currentScaleOffset = 0.0;
+    let currentOscillateZ = 0.0;
+    let currentStarOffsetBonus = 0.0;
 
     // 1. Scene, Camera, Renderer
     const width = window.innerWidth;
@@ -266,6 +197,37 @@ export function WebGLCanvas() {
         targetScale = interpolated.scale * 0.65;
       }
 
+      // Calculate dynamic WebGL targets based on the active hovered pillar index
+      let targetSpeedMult = 1.0;
+      let targetEmissiveInt = 1.2;
+      let targetScaleOffset = 0.0;
+      let targetOscillateZ = 0.0;
+      let targetStarOffsetBonus = 0.0;
+
+      const activePillar = activePillarRef.current;
+      if (activePillar === 0) { // Creativity
+        targetSpeedMult = 1.8;
+        targetStarOffsetBonus = 0.15; // float star further out
+      } else if (activePillar === 1) { // Innovation
+        targetSpeedMult = 3.8; // spin very fast
+        targetEmissiveInt = 4.0; // intense teal glow
+      } else if (activePillar === 2) { // Performance
+        targetSpeedMult = 0.4; // slow deliberate spin
+        targetScaleOffset = 0.18; // pulse bigger
+      } else if (activePillar === 3) { // Storytelling
+        targetOscillateZ = Math.sin(Date.now() * 0.003) * 0.18; // wavy Z-axis rock
+      } else if (activePillar === 4) { // Growth
+        targetSpeedMult = 2.4;
+        targetScaleOffset = 0.08;
+      }
+
+      // Smoothly interpolate current values towards targets
+      currentSpeedMult = THREE.MathUtils.lerp(currentSpeedMult, targetSpeedMult, 0.08);
+      currentEmissiveInt = THREE.MathUtils.lerp(currentEmissiveInt, targetEmissiveInt, 0.08);
+      currentScaleOffset = THREE.MathUtils.lerp(currentScaleOffset, targetScaleOffset, 0.08);
+      currentOscillateZ = THREE.MathUtils.lerp(currentOscillateZ, targetOscillateZ, 0.08);
+      currentStarOffsetBonus = THREE.MathUtils.lerp(currentStarOffsetBonus, targetStarOffsetBonus, 0.08);
+
       // 3D Group transformations
       mainGroup.position.x = THREE.MathUtils.lerp(mainGroup.position.x, targetX, 0.08);
       mainGroup.position.y = THREE.MathUtils.lerp(mainGroup.position.y, targetY, 0.08);
@@ -275,23 +237,28 @@ export function WebGLCanvas() {
       const targetRy = interpolated.ry + mouseRef.current.x * 0.25;
       mainGroup.rotation.x = THREE.MathUtils.lerp(mainGroup.rotation.x, targetRx, 0.08);
       mainGroup.rotation.y = THREE.MathUtils.lerp(mainGroup.rotation.y, targetRy, 0.08);
-      mainGroup.rotation.z = THREE.MathUtils.lerp(mainGroup.rotation.z, interpolated.rz, 0.08);
+      
+      // Apply base Z rotation plus any active storytelling wave oscillation
+      mainGroup.rotation.z = THREE.MathUtils.lerp(mainGroup.rotation.z, interpolated.rz + currentOscillateZ, 0.08);
 
-      mainGroup.scale.setScalar(THREE.MathUtils.lerp(mainGroup.scale.x, targetScale, 0.08));
+      // Apply base scale plus active scale pulse offset
+      const finalScale = targetScale + currentScaleOffset;
+      mainGroup.scale.setScalar(THREE.MathUtils.lerp(mainGroup.scale.x, finalScale, 0.08));
 
-      // Separate the star from the chevron base on scroll for custom parallax effect
+      // Separate the star from the chevron base on scroll + active hover bonus
       starMesh.position.y = THREE.MathUtils.lerp(
         starMesh.position.y,
-        -0.3 - interpolated.starOffset,
+        -0.3 - interpolated.starOffset - currentStarOffsetBonus,
         0.08
       );
-      // Spin the star faster if it separates
-      starMesh.rotation.y += 0.01 + interpolated.starOffset * 0.03;
+      // Spin the star based on scroll progress and active speed multiplier
+      starMesh.rotation.y += (0.01 + interpolated.starOffset * 0.03) * currentSpeedMult;
 
-      // Apply opacity interpolation
+      // Apply opacity & dynamic teal emission intensity
       chevronMat.opacity = THREE.MathUtils.lerp(chevronMat.opacity, interpolated.opacity, 0.08);
       starMat.opacity = THREE.MathUtils.lerp(starMat.opacity, interpolated.opacity, 0.08);
-      pointLight.intensity = THREE.MathUtils.lerp(pointLight.intensity, interpolated.opacity * 8.0, 0.08);
+      starMat.emissiveIntensity = THREE.MathUtils.lerp(starMat.emissiveIntensity, currentEmissiveInt * interpolated.opacity, 0.08);
+      pointLight.intensity = THREE.MathUtils.lerp(pointLight.intensity, interpolated.opacity * currentEmissiveInt * 6.0, 0.08);
 
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(tick);

@@ -1,36 +1,51 @@
 'use client';
 
-import React from 'react';
-import { motion, Variants } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Sparkles, Cpu, Activity, BookOpen, TrendingUp } from 'lucide-react';
 
 export function Pillars() {
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
   const pillars = [
     {
       num: '01',
       title: 'Creativity',
-      desc: 'Original concepts that help brands stand out from the noise.',
+      desc: 'Original concepts designed to help your brand cut through the noise and capture instant audience attention.',
+      icon: Sparkles,
     },
     {
       num: '02',
       title: 'Innovation',
-      desc: 'Cutting-edge AI tools combined with modern creative processes.',
+      desc: 'Cutting-edge artificial intelligence integrated with modern creative workflows to deliver assets at speed.',
+      icon: Cpu,
     },
     {
       num: '03',
       title: 'Performance',
-      desc: 'Content designed not only to look great — but to deliver measurable results.',
+      desc: 'Content engineered to look exceptional and deliver measurable metrics: conversion, engagement, and retention.',
+      icon: Activity,
     },
     {
       num: '04',
       title: 'Storytelling',
-      desc: 'Building emotional connections between brands and the audiences they serve.',
+      desc: 'Building authentic emotional connections between brands and the audiences they are designed to serve.',
+      icon: BookOpen,
     },
     {
       num: '05',
       title: 'Growth',
-      desc: 'Every piece of content we create is aligned with your business growth objectives.',
+      desc: 'Aligning every visual asset and strategy with your core business development and revenue objectives.',
+      icon: TrendingUp,
     },
   ];
+
+  const handleHover = (idx: number) => {
+    setActiveIndex(idx);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('webgl-pillar-hover', { detail: idx }));
+    }
+  };
 
   const containerVariants: Variants = {
     hidden: {},
@@ -51,58 +66,104 @@ export function Pillars() {
   };
 
   return (
-    <section id="pillars" className="py-24 relative z-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          {/* Left Column: Title & Pillars */}
-          <div className="space-y-16">
-            <div className="space-y-4">
-              <span className="font-space text-[12px] font-bold tracking-widest uppercase text-brand-teal">
-                Why Admox
-              </span>
-              <h2 className="font-sora text-4xl md:text-5xl font-bold tracking-tight text-brand-onyx">
-                Five Pillars. <span className="text-brand-teal">One Vision.</span>
-              </h2>
-            </div>
+    <section id="pillars" className="py-24 relative z-20 overflow-hidden w-full">
+      <div className="w-full px-6 md:px-16 lg:px-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Left Column: Sticky Title (Takes 4 cols) */}
+          <div className="lg:col-span-4 lg:sticky lg:top-36 space-y-4">
+            <span className="font-space text-[12px] font-bold tracking-widest uppercase text-brand-teal block">
+              Why Admox
+            </span>
+            <h2 className="font-sora text-4xl md:text-5xl font-bold tracking-tight text-brand-onyx leading-tight">
+              Five Pillars. <span className="text-brand-teal">One Vision.</span>
+            </h2>
+            <p className="font-sans text-brand-onyx/65 text-sm md:text-base leading-relaxed max-w-sm pt-2">
+              Hover over or click each core pillar to explore our creative methodology and see our AI visual engine react.
+            </p>
+          </div>
 
-            {/* Pillars Numbered List */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: '-100px' }}
-              className="space-y-10"
-            >
-              {pillars.map((pillar) => (
+          {/* Right Column: Interactive Accordion Panel (Takes 8 cols) */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-100px' }}
+            className="lg:col-span-8 w-full border-t border-brand-subtle/30"
+          >
+            {pillars.map((pillar, idx) => {
+              const Icon = pillar.icon;
+              const isActive = activeIndex === idx;
+
+              return (
                 <motion.div
                   key={pillar.num}
                   variants={itemVariants}
-                  className="flex gap-6 md:gap-8 items-start group"
+                  onMouseEnter={() => handleHover(idx)}
+                  onClick={() => handleHover(idx)}
+                  className={`border-b border-brand-subtle/30 py-6 flex gap-6 items-start transition-all duration-300 cursor-pointer select-none ${
+                    isActive ? 'opacity-100' : 'opacity-40 hover:opacity-75'
+                  }`}
                 >
-                  <span className="font-sora text-4xl md:text-5xl font-extrabold text-brand-teal/20 group-hover:text-brand-teal transition-colors duration-300 select-none">
+                  {/* Number */}
+                  <span
+                    className={`font-sora text-2xl md:text-3xl font-extrabold transition-all duration-300 shrink-0 ${
+                      isActive ? 'text-brand-teal scale-105' : 'text-brand-onyx/30'
+                    }`}
+                  >
                     {pillar.num}
                   </span>
-                  <div className="space-y-1">
-                    <h3 className="font-sora text-xl font-bold text-brand-onyx">
-                      {pillar.title}
-                    </h3>
-                    <p className="font-sans text-brand-onyx/70 text-sm md:text-base max-w-lg leading-relaxed">
-                      {pillar.desc}
-                    </p>
+
+                  {/* Content Block */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-4">
+                      <h3
+                        className={`font-sora text-lg md:text-xl font-bold transition-all duration-300 ${
+                          isActive ? 'text-brand-teal font-extrabold' : 'text-brand-onyx'
+                        }`}
+                      >
+                        {pillar.title}
+                      </h3>
+                      
+                      {/* Icon Indicator (Desktop only) */}
+                      <div className="hidden md:flex items-center justify-center w-8 h-8 text-brand-teal shrink-0">
+                        <motion.div
+                          animate={{
+                            rotate: isActive ? 360 : 0,
+                            scale: isActive ? 1.15 : 0.8,
+                          }}
+                          transition={{ duration: 0.5, ease: 'easeOut' }}
+                        >
+                          <Icon className="w-5 h-5" />
+                        </motion.div>
+                      </div>
+                    </div>
+
+                    {/* Expanding Description */}
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        height: isActive ? 'auto' : 0,
+                        opacity: isActive ? 1 : 0,
+                        marginTop: isActive ? 8 : 0,
+                      }}
+                      transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <p className="font-sans text-brand-onyx/75 text-sm md:text-base leading-relaxed pr-8">
+                        {pillar.desc}
+                      </p>
+                    </motion.div>
                   </div>
                 </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Right Column: Spacing for WebGL canvas on desktop */}
-          <div className="hidden lg:block h-[500px]" />
+              );
+            })}
+          </motion.div>
         </div>
       </div>
 
       {/* USP Strip */}
       <div className="mt-24 bg-brand-onyx py-8 border-y border-brand-teal/20 text-brand-linen flex overflow-hidden">
-        <div className="flex w-full justify-around text-center max-w-7xl mx-auto px-6 font-space text-[11px] md:text-xs font-bold uppercase tracking-widest leading-relaxed gap-6 flex-wrap">
+        <div className="flex w-full justify-around text-center max-w-full mx-auto px-6 font-space text-[11px] md:text-xs font-bold uppercase tracking-widest leading-relaxed gap-6 flex-wrap select-none">
           <span>Faster turnaround</span>
           <span className="text-brand-teal">•</span>
           <span>Higher content volume</span>

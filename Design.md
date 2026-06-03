@@ -114,13 +114,16 @@ Extracted directly from the brand book PDF:
 
 ---
 
-## 7. Motion Principles
+## 7. Motion Principles & WebGL
 
-- **Page Load:** Staggered fade-up reveals (0.1s delay increments)
-- **Hover States:** Gentle lift + teal underline on text, scale on cards
+- **Page Load:** Staggered fade-up reveals (0.15s delay increments via Framer Motion)
+- **Hover States:** Gentle lift + teal highlight, scale on button CTAs (framer-motion micro-interactions)
 - **Transitions:** 300–500ms ease-out, never abrupt
-- **Scroll:** Fade-in-up on section entry via IntersectionObserver
-- **Personality:** Calm, confident, not bouncy or playful
+- **Scroll Parallax (WebGL):** 
+  - A programmatically generated 3D Chevron A and Star Sparkle logo motif floats in a fixed-position background canvas.
+  - Position, rotation, scale, and star-separation offset interpolate smoothly in sync with scroll progress using spring-smoothed motion curves (`framer-motion`'s `useSpring`).
+  - Subtle mouse-tracking tilts the object based on pointer coordinates.
+- **Personality:** Calm, confident, structured, high-luxury magic
 
 ---
 
@@ -149,3 +152,29 @@ Extracted directly from the brand book PDF:
 - Premium editorial photography style
 - Bold typographic compositions
 - AI-generated visual concepts shown as mockups
+
+---
+
+## 10. Next.js & Tailwind CSS v4 Theme Integration
+
+### Tailwind CSS v4 Configuration (`app/globals.css`)
+```css
+@theme {
+  --color-brand-linen: #EEF7E8;
+  --color-brand-teal: #256951;
+  --color-brand-onyx: #252F2C;
+  --color-brand-subtle: #D4E8CC;
+
+  --font-sora: var(--font-sora);
+  --font-space: var(--font-space-grotesk);
+  --font-sans: var(--font-dm-sans);
+
+  --animate-marquee: marquee 25s linear infinite;
+}
+```
+
+### Google Fonts Config (`app/layout.tsx`)
+- **Headings:** Sora (weights: 400, 600, 700, 800) loaded as `--font-sora`
+- **UI Labels/Headers:** Space Grotesk (weights: 300, 400, 500) loaded as `--font-space-grotesk`
+- **Body Text:** DM Sans (weights: 300, 400) loaded as `--font-dm-sans`
+

@@ -5,34 +5,6 @@ import Link from 'next/link';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const [webglActive, setWebglActive] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleScroll = () => {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        // Trigger 60px before hitting the very bottom to align with the breakout
-        setIsAtBottom(window.scrollY > maxScroll - 60);
-      };
-      
-      const handleWebglReady = () => setWebglActive(true);
-      
-      window.addEventListener('scroll', handleScroll);
-      window.addEventListener('webgl-ready', handleWebglReady);
-      
-      if ((window as any).__webglActive) {
-        setWebglActive(true);
-      }
-      
-      handleScroll();
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('webgl-ready', handleWebglReady);
-      };
-    }
-  }, []);
 
   const services = [
     'Brand Films',
@@ -57,16 +29,12 @@ export function Footer() {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                className={`transition-opacity duration-500 ${
-                  webglActive && isAtBottom ? 'opacity-0' : 'opacity-100'
-                }`}
+                className="transition-opacity duration-500 opacity-100"
                 d="M50 15 L88 85 L70 85 L50 45 L30 85 L12 85 Z"
                 fill="currentColor"
               />
               <path
-                className={`transition-opacity duration-500 ${
-                  webglActive && isAtBottom ? 'opacity-0' : 'opacity-100'
-                }`}
+                className="transition-opacity duration-500 opacity-100"
                 d="M50 63 L53 73 L63 76 L53 79 L50 89 L47 79 L37 76 L47 73 Z"
                 fill="var(--color-brand-teal)"
               />

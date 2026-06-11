@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Button } from '../ui/Button';
+import LightRays from '../ui/light-rays/LightRays';
 
 export function Hero() {
   const containerVariants: Variants = {
@@ -34,6 +35,19 @@ export function Hero() {
       <div className="bg-white rounded-b-[60px] md:rounded-b-[100px] pt-40 pb-28 px-6 md:px-12 relative overflow-hidden flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(37,105,81,0.02)]">
         {/* Subtle Decorative Grid Pattern inside White Container */}
         <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#256951_1px,transparent_1px),linear-gradient(to_bottom,#256951_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+
+        {/* WebGL Light Rays Background (Color theme: Brand Teal) */}
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#256951"
+          raysSpeed={1.0}
+          lightSpread={0.8}
+          rayLength={1.3}
+          pulsating={false}
+          followMouse={true}
+          mouseInfluence={0.08}
+          distortion={0.06}
+        />
 
         <motion.div
           variants={containerVariants}

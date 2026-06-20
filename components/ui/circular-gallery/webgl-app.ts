@@ -74,6 +74,9 @@ export class App {
       dpr: Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2)
     });
     this.gl = this.renderer.gl;
+    if (!this.gl) {
+      throw new Error('WebGL context could not be created');
+    }
     this.gl.clearColor(0, 0, 0, 0);
     this.container.appendChild(this.gl.canvas);
   }

@@ -1,159 +1,146 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Button } from '../ui/Button';
-import LightRays from '../ui/light-rays/LightRays';
+import { LogoArc } from './Hero/LogoArc';
+
+const PLAYBACK_RATE = 0.5;
 
 export function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.playbackRate = PLAYBACK_RATE;
+
+    const handleCanPlay = () => {
+      video.playbackRate = PLAYBACK_RATE;
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    return () => video.removeEventListener('canplay', handleCanPlay);
+  }, []);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 25 },
     show: { 
       opacity: 1, 
       y: 0,
       transition: {
         duration: 0.8,
-        ease: [0.25, 1, 0.5, 1] as [number, number, number, number],
+        ease: [0.25, 1, 0.5, 1],
       }
     },
   };
 
   return (
-    <section id="hero" className="relative bg-brand-linen z-20">
-      {/* Curved Capsule Wrapper */}
-      <div className="bg-white rounded-b-[60px] md:rounded-b-[100px] pt-40 pb-28 px-6 md:px-12 relative overflow-hidden flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(37,105,81,0.02)]">
-        {/* Subtle Decorative Grid Pattern inside White Container */}
-        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#256951_1px,transparent_1px),linear-gradient(to_bottom,#256951_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+    <section id="hero" className="relative min-h-screen flex flex-col overflow-hidden">
+      {/* Layer 1: White base */}
+      <div className="absolute inset-0 bg-white z-0" />
 
-        {/* WebGL Light Rays Background (Color theme: Brand Teal) */}
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#256951"
-          raysSpeed={1.0}
-          lightSpread={0.8}
-          rayLength={1.3}
-          pulsating={false}
-          followMouse={true}
-          mouseInfluence={0.08}
-          distortion={0.06}
-        />
+      {/* Layer 2: Video background pinned to bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-[55vh] z-[1] pointer-events-none select-none">
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-cover object-bottom"
+        >
+          <source src="/hero-landscape.mp4" type="video/mp4" />
+        </video>
+        {/* Smooth gradient fade at top edge */}
+        <div className="absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-white via-white/70 to-transparent z-[1]" />
+      </div>
 
+      {/* Layer 3: Dome glow (brand teal/green tones) */}
+      <div
+        className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-square rounded-full bg-gradient-to-b from-brand-subtle/50 via-brand-linen/30 to-transparent z-[2] pointer-events-none"
+        style={{ maskImage: 'linear-gradient(to bottom, black 30%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 65%)' }}
+      />
+
+      {/* Layer 4: Floating Logo Arc */}
+      <div className="absolute top-[8%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-[1.4/1] z-[3] pointer-events-none">
+        <LogoArc />
+      </div>
+
+      {/* Layer 5: Main content (highest) */}
+      <div className="flex-1 flex flex-col items-center justify-start pt-32 sm:pt-40 md:pt-44 pb-72 md:pb-80 px-6 relative z-[5]">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="max-w-6xl w-full flex flex-col items-center relative z-10"
+          className="max-w-4xl w-full flex flex-col items-center text-center"
         >
-          {/* Centered Headline with Absolute Decorative Icons */}
-          <motion.div variants={itemVariants} className="text-center relative max-w-4xl px-12 md:px-16">
-            {/* Left arrow decoration (Absolute) */}
-            <span className="text-brand-teal/30 absolute -left-2 md:left-4 top-2 hidden lg:inline-block shrink-0 pointer-events-none">
-              <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* 8-pointed star / sparkle */}
-                <path d="M50 10 L54 42 L86 46 L54 50 L50 82 L46 50 L14 46 L46 42 Z" fill="currentColor" />
-              </svg>
-            </span>
-            
-            <h1 className="font-sora text-4xl md:text-5xl lg:text-[60px] font-extrabold text-brand-onyx leading-[1.1] tracking-tight select-none">
-              Empowering Brands Through Creative Vision
-            </h1>
-
-            {/* Right arrow decoration (Absolute) */}
-            <span className="text-brand-teal/30 absolute -right-2 md:right-4 bottom-2 hidden lg:inline-block shrink-0 pointer-events-none">
-              <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M70 25 L32 50 L70 75" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M50 25 L12 50 L50 75" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
-              </svg>
+          {/* Badge */}
+          <motion.div variants={itemVariants} className="mb-5">
+            <span className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border border-brand-teal/10 bg-white/80 backdrop-blur-md shadow-[0_2px_12px_rgba(37,105,81,0.04)] text-[13px] font-semibold text-brand-onyx/85">
+              We just raised 20M🚀
             </span>
           </motion.div>
 
-          {/* Subheading & Portrait Grid */}
-          <motion.div 
+          {/* Headline */}
+          <motion.h1 
             variants={itemVariants} 
-            className="w-full mt-16 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8"
+            className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl"
           >
-            {/* Left Side: Editorial Description */}
-            <div className="w-full lg:w-[28%] text-center lg:text-left space-y-4 relative">
-              {/* Swirling Arrow SVG from text pointing to portrait */}
-              <svg className="absolute -right-8 top-12 w-20 h-12 text-brand-teal/20 hidden lg:block pointer-events-none" viewBox="0 0 100 100" fill="none">
-                <path d="M10 20 Q40 5, 80 50" stroke="currentColor" strokeWidth="2.5" strokeDasharray="4 4" fill="none" />
-                <path d="M80 50 L70 42 M80 50 L72 58" stroke="currentColor" strokeWidth="2.5" fill="none" />
+            Your Haven for <br />
+            <em className="italic">Seamless</em> AI Solutions
+          </motion.h1>
+
+          {/* Subheading */}
+          <motion.p 
+            variants={itemVariants}
+            className="font-sans text-sm sm:text-[15px] md:text-base text-brand-onyx/55 max-w-xl leading-relaxed mt-5"
+          >
+            Empowering you with intelligent, effortless tools to streamline your workflow, enhance
+            collaboration, and achieve more—seamlessly.
+          </motion.p>
+
+          {/* Action Buttons */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex items-center gap-3.5 mt-7"
+          >
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center font-sans text-sm font-semibold text-white bg-brand-onyx hover:bg-brand-teal px-7 py-3 rounded-full transition-colors duration-300 shadow-[0_4px_16px_rgba(37,105,81,0.12)] cursor-pointer select-none"
+            >
+              Book a demo
+            </a>
+            
+            {/* Play Button */}
+            <button 
+              className="w-11 h-11 flex items-center justify-center rounded-full bg-white text-brand-onyx border border-brand-teal/10 shadow-[0_2px_10px_rgba(37,105,81,0.06)] hover:scale-105 transition-transform duration-300 cursor-pointer"
+              aria-label="Watch video"
+            >
+              <svg 
+                className="w-3.5 h-3.5 fill-current text-brand-onyx translate-x-[1px]" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z" />
               </svg>
-              
-              <span className="text-brand-teal font-space text-[12px] font-bold uppercase tracking-wider block">
-                AI-Powered Strategy
-              </span>
-              <p className="font-sans text-brand-onyx/75 text-sm md:text-base leading-relaxed font-light">
-                We combine human imagination with artificial intelligence to deliver modern strategies that elevate your brand voice and accelerate digital growth.
-              </p>
-              <div className="pt-2">
-                <Button href="#about" variant="secondary" className="rounded-full py-2.5 px-6">
-                  Innovate Your Brand
-                </Button>
-              </div>
-            </div>
-
-            {/* Center: The Circular Portrait */}
-            <div className="relative flex items-center justify-center shrink-0">
-              {/* Portrait Frame */}
-              <div className="w-60 h-60 md:w-76 md:h-76 rounded-full overflow-hidden border-[6px] border-brand-linen shadow-[0_10px_35px_rgba(37,105,81,0.08)] bg-brand-linen/30 flex items-center justify-center">
-                <img
-                  src="/hero-portrait.png"
-                  alt="Admox Media Creative profile"
-                  className="w-full h-full object-cover object-top scale-105 pointer-events-none select-none"
-                />
-              </div>
-
-              {/* Overlapping Pill buttons at the bottom of the portrait */}
-              <div className="absolute -bottom-5 flex items-center justify-center gap-3 w-max">
-                <Button 
-                  href="#contact" 
-                  className="rounded-full py-2.5 px-5 shadow-[0_4px_15px_rgba(37,105,81,0.2)] text-white bg-brand-teal border-brand-teal hover:bg-white hover:text-brand-teal whitespace-nowrap text-[11px] tracking-wider uppercase font-bold"
-                >
-                  Start Your Project
-                </Button>
-                <a
-                  href="#contact"
-                  className="h-10 px-5 inline-flex items-center justify-center font-space text-[11px] font-bold tracking-wider uppercase border border-brand-onyx bg-brand-onyx text-white hover:bg-transparent hover:text-brand-onyx transition-colors duration-300 rounded-full shadow-[0_4px_15px_rgba(37,47,44,0.15)] whitespace-nowrap"
-                >
-                  Let's Collaborate
-                </a>
-              </div>
-            </div>
-
-            {/* Right Side: Rating & Experience */}
-            <div className="w-full lg:w-[28%] text-center lg:text-right space-y-4">
-              <div className="inline-flex gap-1 text-[#f59e0b] justify-center lg:justify-end">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-sora text-3xl font-extrabold text-brand-onyx">5+ Years</h3>
-                <p className="font-space text-[12px] font-bold text-brand-teal uppercase tracking-widest">
-                  AI + Media Innovation
-                </p>
-              </div>
-              <p className="font-sans text-brand-onyx/70 text-xs md:text-sm leading-relaxed max-w-[240px] mx-auto lg:mr-0 lg:ml-auto">
-                Consistently delivering high-impact creative results through cutting-edge production workflows.
-              </p>
-            </div>
+            </button>
           </motion.div>
         </motion.div>
       </div>
     </section>
   );
 }
+
+export default Hero;

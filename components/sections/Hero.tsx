@@ -87,16 +87,11 @@ export function Hero() {
           animate="show"
           className="max-w-4xl w-full flex flex-col items-center text-center"
         >
-          {/* Badge */}
-          <motion.div variants={itemVariants} className="mb-5">
-            <span className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full border border-brand-teal/10 bg-white/80 backdrop-blur-md shadow-[0_2px_12px_rgba(37,105,81,0.04)] text-[13px] font-semibold text-brand-onyx/85">
-              We just raised 20M🚀
-            </span>
-          </motion.div>
+
 
           {/* Headline */}
-          <motion.h1 
-            variants={itemVariants} 
+          <motion.h1
+            variants={itemVariants}
             className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl"
           >
             Your Haven for <br />

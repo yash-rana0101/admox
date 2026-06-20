@@ -75,7 +75,7 @@ export function Hero() {
       />
 
       {/* Layer 4: Floating Logo Arc */}
-      <div className="absolute top-[8%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-[1.4/1] z-[3] pointer-events-none">
+      <div className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-square z-[3] pointer-events-none">
         <LogoArc />
       </div>
 

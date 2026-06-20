@@ -9,6 +9,7 @@
   --font-sora: var(--font-sora);
   --font-space: var(--font-space-grotesk);
   --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-playfair);
 
   --animate-marquee: marquee 25s linear infinite;
 

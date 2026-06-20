@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora, Space_Grotesk, DM_Sans } from "next/font/google";
+import { Sora, Space_Grotesk, DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const sora = Sora({
@@ -20,6 +20,12 @@ const dmSans = DM_Sans({
   weight: ["300", "400"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Admox Media — AI-Powered Creative Agency",
   description: "We combine human creativity with artificial intelligence to produce content that captures attention, builds trust, and accelerates growth.",
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sora.variable} ${spaceGrotesk.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${sora.variable} ${spaceGrotesk.variable} ${dmSans.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

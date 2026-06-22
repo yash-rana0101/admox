@@ -13,8 +13,8 @@ import { buildEmbedUrl } from './constants';
  */
 export function YouTubePlayer({ videoId, isActive, shouldLoad }: YouTubePlayerProps) {
   const embedUrl = useMemo(
-    () => buildEmbedUrl(videoId, isActive),
-    [videoId, isActive]
+    () => buildEmbedUrl(videoId),
+    [videoId]
   );
 
   return (

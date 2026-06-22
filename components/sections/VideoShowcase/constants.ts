@@ -27,12 +27,12 @@ export const YOUTUBE_VIDEOS: YouTubeVideo[] = youtubeUrls.map((url) => ({
  * Builds a YouTube nocookie embed URL with parameters that:
  * - Hide YouTube logo / branding as much as possible
  * - Disable related videos
- * - Autoplay and loop when active
- * - Mute for autoplay policy compliance
+ * - Always autoplay (muted videos are allowed by browser policy)
+ * - Loop continuously
  */
-export function buildEmbedUrl(videoId: string, autoplay: boolean): string {
+export function buildEmbedUrl(videoId: string): string {
   const params = new URLSearchParams({
-    autoplay: autoplay ? '1' : '0',
+    autoplay: '1',
     mute: '1',
     loop: '1',
     controls: '0',

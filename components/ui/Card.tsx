@@ -15,10 +15,10 @@ const Card = React.forwardRef<
 >(({ className, delay = 0, noDefaultPadding = false, ...props }, ref) => (
   <motion.div
     ref={ref as any}
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
+    initial={{ opacity: 0, y: 35, scale: 0.97 }}
+    whileInView={{ opacity: 1, y: 0, scale: 1 }}
     viewport={{ once: true, margin: '-50px' }}
-    transition={{ duration: 0.5, delay: delay, ease: [0.25, 1, 0.5, 1] }}
+    transition={{ duration: 0.8, delay: delay, ease: [0.16, 1, 0.3, 1] }}
     whileHover={noDefaultPadding ? undefined : { y: -6 }}
     className={cn(
       noDefaultPadding

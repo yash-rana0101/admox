@@ -11,6 +11,7 @@ import { Services } from '../components/sections/Services';
 import { ReelsShowcase } from '../components/sections/ReelsShowcase';
 import { Pillars } from '../components/sections/Pillars';
 import { Manifesto } from '../components/sections/Manifesto';
+import { Testimonials } from '../components/sections/Testimonials';
 import { WhoWeServe } from '../components/sections/WhoWeServe';
 import { CTA } from '../components/sections/CTA';
 import { EntryScreen } from '../components/layout/EntryScreen';
@@ -56,6 +57,7 @@ export default function Home() {
           <ReelsShowcase />
           <Pillars />
           <Manifesto />
+          <Testimonials />
           <WhoWeServe />
           <CTA />
         </main>

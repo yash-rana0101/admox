@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '../ui/Button';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { ExplodingButton } from '../ui/ExplodingButton';
+import { AnimeText } from '../ui/AnimeText';
+import { ParallaxScroll } from '../ui/ParallaxScroll';
 
 export function CTA() {
   const [formData, setFormData] = useState({
@@ -53,38 +55,80 @@ export function CTA() {
     }
   };
 
+  const ctaContainerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      }
+    }
+  };
+
+  const ctaItemVariants: Variants = {
+    hidden: { opacity: 0, y: 30, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1], // easeOutExpo curve
+      }
+    }
+  };
+
   return (
     <section
       id="contact"
-      className="py-24 px-6 md:px-12 bg-brand-onyx text-white relative z-20 overflow-hidden"
+      className="py-24 px-6 md:px-12 bg-brand-onyx text-white relative z-20 overflow-hidden w-full"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        {/* Left Column: Heading & Content */}
-        <div className="space-y-6 max-w-xl">
-          <span className="font-space text-[12px] font-bold tracking-widest uppercase text-brand-teal">
-            Get in Touch
-          </span>
-          <h2 className="font-sora text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-            Ready to Build Something <span className="text-brand-teal">Extraordinary?</span>
-          </h2>
-          <p className="font-sans text-brand-linen/80 text-lg leading-relaxed font-light">
-            Let's combine creativity and AI to take your brand to the next level. We're ready when you are.
-          </p>
-          <div className="pt-6 border-t border-brand-linen/10 space-y-2">
-            <span className="font-space text-xs uppercase tracking-wider text-brand-teal block">
-              Direct Contact
-            </span>
-            <a
-              href="mailto:hello@admoxmedia.com"
-              className="font-sora text-lg hover:text-brand-teal transition-colors duration-300"
-            >
-              hello@admoxmedia.com
-            </a>
-          </div>
-        </div>
+        {/* Left Column: Heading & Content with Parallax and staggered entry */}
+        <ParallaxScroll yOffset={-30} className="w-full">
+          <motion.div
+            variants={ctaContainerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-100px' }}
+            className="space-y-6 max-w-xl"
+          >
+            <motion.span variants={ctaItemVariants} className="font-space text-[12px] font-bold tracking-widest uppercase text-brand-teal block">
+              Get in Touch
+            </motion.span>
+            <h2 className="font-sora text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight flex flex-col gap-2">
+              <AnimeText text="Ready to Build" tag="span" splitBy="words" delay={100} />
+              <span className="flex flex-wrap items-center gap-x-3">
+                <AnimeText text="Something" tag="span" splitBy="chars" delay={300} />
+                <AnimeText text="Extraordinary?" className="text-brand-teal" tag="span" splitBy="chars" delay={550} />
+              </span>
+            </h2>
+            <motion.p variants={ctaItemVariants} className="font-sans text-brand-linen/80 text-lg leading-relaxed font-light">
+              Let's combine creativity and AI to take your brand to the next level. We're ready when you are.
+            </motion.p>
+            <motion.div variants={ctaItemVariants} className="pt-6 border-t border-brand-linen/10 space-y-2">
+              <span className="font-space text-xs uppercase tracking-wider text-brand-teal block">
+                Direct Contact
+              </span>
+              <a
+                href="mailto:hello@admoxmedia.com"
+                className="font-sora text-lg hover:text-brand-teal transition-colors duration-300 block w-fit"
+              >
+                hello@admoxmedia.com
+              </a>
+            </motion.div>
+          </motion.div>
+        </ParallaxScroll>
 
-        {/* Right Column: Stateful Lead Form */}
-        <div className="bg-white/5 border border-brand-teal/20 p-8 shadow-[0_4px_30px_rgba(37,105,81,0.05)] backdrop-blur-sm relative">
+        {/* Right Column: Stateful Lead Form with animated slide-in */}
+        <motion.div
+          initial={{ opacity: 0, y: 40, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white/5 border border-brand-teal/20 p-8 shadow-[0_4px_30px_rgba(37,105,81,0.05)] backdrop-blur-sm relative"
+        >
           <AnimatePresence mode="wait">
             {status === 'success' ? (
               <motion.div
@@ -201,17 +245,16 @@ export function CTA() {
                 )}
 
                 {/* Submit Button */}
-                <Button
+                <ExplodingButton
                   type="submit"
                   className="w-full"
-                  onClick={() => {}}
                 >
                   {status === 'loading' ? 'Sending Inquiry...' : 'Submit Project Inquiry →'}
-                </Button>
+                </ExplodingButton>
               </motion.form>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

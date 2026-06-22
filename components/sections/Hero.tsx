@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LogoArc } from './Hero/LogoArc';
+import { AnimeText } from '../ui/AnimeText';
 
 const PLAYBACK_RATE = 0.5;
 
@@ -90,13 +91,13 @@ export function Hero() {
 
 
           {/* Headline */}
-          <motion.h1
-            variants={itemVariants}
-            className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl"
-          >
-            Your Haven for <br />
-            <em className="italic">Seamless</em> AI Solutions
-          </motion.h1>
+          <h1 className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl flex flex-col items-center gap-2">
+            <AnimeText text="Your Haven for" className="font-serif" tag="span" splitBy="words" delay={100} />
+            <span className="flex flex-wrap items-center justify-center gap-x-3">
+              <AnimeText text="Seamless" className="italic font-serif text-brand-teal" tag="span" splitBy="chars" delay={400} />
+              <AnimeText text="AI Solutions" className="font-serif" tag="span" splitBy="words" delay={700} />
+            </span>
+          </h1>
 
           {/* Subheading */}
           <motion.p 

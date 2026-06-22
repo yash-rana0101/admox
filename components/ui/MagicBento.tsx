@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
-import { Film, Cpu, Smartphone, Sparkles, TrendingUp, Play, LucideIcon } from 'lucide-react';
+import { Film, Cpu, Smartphone, Sparkles, TrendingUp, Play, LucideIcon, Users } from 'lucide-react';
 import './MagicBento.css';
 
 const DEFAULT_PARTICLE_COUNT = 12;
@@ -35,29 +35,29 @@ const cardData: BentoCard[] = [
   },
   {
     color: 'transparent',
-    title: 'Reels Production',
-    description: 'Scroll-stopping vertical visual assets.',
+    title: 'UGC Content',
+    description: 'AI-powered creator content for faster audience growth.',
     label: 'Social Growth',
-    icon: Smartphone
+    icon: Users
   },
   {
     color: 'transparent',
     title: 'AI Graphic Design',
-    description: 'Stunning visual concepts at generative speeds.',
+    description: 'Visually striking graphics designed at the speed of AI.',
     label: 'Generative',
     icon: Sparkles
   },
   {
     color: 'transparent',
     title: 'AI Content Strategy',
-    description: 'Know exactly what to say, and when to say it.',
+    description: 'Data-driven direction to scale your content.',
     label: 'Strategy',
     icon: TrendingUp
   },
   {
     color: 'transparent',
-    title: 'YouTube Editing',
-    description: 'Engaging long-form narratives that double retention.',
+    title: 'Micro Dramas',
+    description: 'Short-form narratives designed to hook and hold attention.',
     label: 'Production',
     icon: Play
   }

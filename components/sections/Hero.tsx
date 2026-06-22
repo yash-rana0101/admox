@@ -92,7 +92,7 @@ export function Hero() {
 
           {/* Headline */}
           <h1 className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl flex flex-col items-center gap-2">
-            <AnimeText text="Your Haven for" className="font-serif" tag="span" splitBy="words" delay={100} />
+            <AnimeText text="Your Heaven for" className="font-serif" tag="span" splitBy="words" delay={100} />
             <span className="flex flex-wrap items-center justify-center gap-x-3">
               <AnimeText text="Seamless" className="italic font-serif text-brand-teal" tag="span" splitBy="chars" delay={400} />
               <AnimeText text="AI Solutions" className="font-serif" tag="span" splitBy="words" delay={700} />
@@ -114,24 +114,13 @@ export function Hero() {
             className="flex items-center gap-3.5 mt-7"
           >
             <a
-              href="#contact"
+              href="https://calendly.com/admoxmedia"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center font-sans text-sm font-semibold text-white bg-brand-onyx hover:bg-brand-teal px-7 py-3 rounded-full transition-colors duration-300 shadow-[0_4px_16px_rgba(37,105,81,0.12)] cursor-pointer select-none"
             >
-              Book a demo
+              Book a Call 
             </a>
-            
-            {/* Play Button */}
-            <button 
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-white text-brand-onyx border border-brand-teal/10 shadow-[0_2px_10px_rgba(37,105,81,0.06)] hover:scale-105 transition-transform duration-300 cursor-pointer"
-              aria-label="Watch video"
-            >
-              <svg 
-                className="w-3.5 h-3.5 fill-current text-brand-onyx translate-x-[1px]" 
-                viewBox="0 0 24 24"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
           </motion.div>
         </motion.div>
       </div>

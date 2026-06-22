@@ -48,14 +48,14 @@ export function AnimeText({
           key={idx}
           className="anime-item inline-block"
           style={{ 
-            whiteSpace: item === ' ' ? 'pre' : 'normal',
             transformOrigin: 'bottom center',
+            marginRight: splitBy === 'words' && idx < items.length - 1 ? '0.27em' : undefined,
           }}
         >
-          {item}
-          {splitBy === 'words' && idx < items.length - 1 ? ' ' : ''}
+          {item === ' ' ? '\u00A0' : item}
         </span>
       ))}
     </Tag>
   );
 }
+

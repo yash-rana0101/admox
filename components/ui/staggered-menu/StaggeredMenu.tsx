@@ -103,6 +103,12 @@ export function StaggeredMenu(props: StaggeredMenuProps) {
     };
   }, [closeOnClickAway, open, closeMenu]);
 
+  const currentLogo = open
+    ? '/logo-bgrm.png'
+    : navbarTheme === 'light'
+    ? '/logo-white.png'
+    : '/logo-bgrm.png';
+
   return (
     <div
       className={`${className ? className + ' ' : ''}staggered-menu-wrapper${isFixed ? ' fixed-wrapper' : ''}`}
@@ -139,7 +145,7 @@ export function StaggeredMenu(props: StaggeredMenuProps) {
           ) : (
             <div className="flex items-center gap-2.5 group select-none cursor-pointer">
               <img
-                src="/logo-bgrm.png"
+                src={currentLogo}
                 alt="Logo"
                 className="w-14 h-14 object-contain transition-transform duration-500 group-hover:rotate-12"
                 draggable={false}

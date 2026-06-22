@@ -13,16 +13,16 @@ interface TestimonialCardProps {
   cardSize: number;
 }
 
-const TestimonialCard: React.FC<TestimonialCardProps> = ({ 
-  position, 
-  testimonial, 
-  handleMove, 
-  cardSize 
+const TestimonialCard: React.FC<TestimonialCardProps> = ({
+  position,
+  testimonial,
+  handleMove,
+  cardSize
 }) => {
   const isCenter = position === 0;
   const isMobileCard = cardSize < 320;
   const cardRef = useRef<HTMLDivElement>(null);
-  
+
   // Mathematically scale the cut corner size and diagonal line width
   const cutSize = isMobileCard ? 35 : 50;
   const diagonalLength = Math.sqrt(2 * cutSize * cutSize);
@@ -56,8 +56,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         onClick={() => handleMove(position)}
         className={cn(
           "pointer-events-auto cursor-pointer border select-none h-full w-full transition-shadow duration-300",
-          isCenter 
-            ? "bg-brand-teal text-white border-brand-teal shadow-xl" 
+          isCenter
+            ? "bg-brand-teal text-white border-brand-teal shadow-xl"
             : "bg-white text-brand-onyx border-brand-subtle/40 hover:border-brand-teal/40 hover:shadow-lg",
           isMobileCard ? "p-5" : "p-8"
         )}
@@ -78,7 +78,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             height: 2
           }}
         />
-        
+
         <div className={cn("relative inline-block", isMobileCard ? "mb-4" : "mb-6")}>
           <img
             src={testimonial.imgSrc}
@@ -100,16 +100,16 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         )}>
           "{testimonial.testimonial}"
         </h3>
-        
+
         <p className={cn(
           "absolute left-8 right-8 font-space uppercase tracking-widest font-bold",
           isMobileCard ? "bottom-5 text-[9px]" : "bottom-8 text-[10px]",
           isCenter ? "text-brand-subtle" : "text-brand-teal"
         )}
-        style={{
-          left: isMobileCard ? "20px" : "32px",
-          right: isMobileCard ? "20px" : "32px"
-        }}>
+          style={{
+            left: isMobileCard ? "20px" : "32px",
+            right: isMobileCard ? "20px" : "32px"
+          }}>
           — {testimonial.by}
         </p>
       </div>
@@ -120,6 +120,43 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 export const StaggerTestimonials: React.FC = () => {
   const [cardSize, setCardSize] = useState(365);
   const [testimonialsList, setTestimonialsList] = useState<Testimonial[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const dragStart = useRef<number | null>(null);
+  const dragOffset = useRef<number>(0);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Only support mouse left click or touches
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    dragStart.current = e.clientX;
+    dragOffset.current = 0;
+    setIsDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (dragStart.current === null) return;
+    dragOffset.current = e.clientX - dragStart.current;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (dragStart.current === null) return;
+
+    e.currentTarget.releasePointerCapture(e.pointerId);
+
+    const diff = dragOffset.current;
+    const threshold = 50;
+
+    if (diff > threshold) {
+      handleMove(-1);
+    } else if (diff < -threshold) {
+      handleMove(1);
+    }
+
+    dragStart.current = null;
+    dragOffset.current = 0;
+    setIsDragging(false);
+  };
 
   useEffect(() => {
     setTestimonialsList(testimonials);
@@ -170,7 +207,17 @@ export const StaggerTestimonials: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full overflow-hidden bg-transparent py-4" style={{ height: 600 }}>
+    <div
+      className={cn(
+        "relative w-full bg-transparent py-4 select-none touch-pan-y",
+        isDragging ? "cursor-grabbing" : "cursor-grab"
+      )}
+      style={{ height: 600 }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
       {testimonialsList.map((testimonial, index) => {
         const position = testimonialsList.length % 2
           ? index - (testimonialsList.length + 1) / 2
@@ -185,7 +232,7 @@ export const StaggerTestimonials: React.FC = () => {
           />
         );
       })}
-      
+
       {/* Navigation Controls */}
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-4">
         <button

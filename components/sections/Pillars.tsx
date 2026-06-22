@@ -160,21 +160,6 @@ export function Pillars() {
           </motion.div>
         </div>
       </div>
-
-      {/* USP Strip */}
-      <div className="mt-24 bg-brand-onyx py-8 border-y border-brand-teal/20 text-brand-linen flex overflow-hidden">
-        <div className="flex w-full justify-around text-center max-w-full mx-auto px-6 font-space text-[11px] md:text-xs font-bold uppercase tracking-widest leading-relaxed gap-6 flex-wrap select-none">
-          <span>Faster turnaround</span>
-          <span className="text-brand-teal">•</span>
-          <span>Higher content volume</span>
-          <span className="text-brand-teal">•</span>
-          <span>Better efficiency</span>
-          <span className="text-brand-teal">•</span>
-          <span>Cost-effective production</span>
-          <span className="text-brand-teal">•</span>
-          <span>Trend-aware creative solutions</span>
-        </div>
-      </div>
     </section>
   );
 }

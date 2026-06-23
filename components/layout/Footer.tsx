@@ -107,7 +107,7 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Register Column */}
+        {/* Register Column
         <div className="col-span-1 md:col-span-2 space-y-4">
           <h4 className="font-sora text-sm font-bold text-white tracking-wider">
             Register
@@ -124,7 +124,7 @@ export function Footer() {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </div>
 
       {/* Huge Backdrop Watermark Logo Text */}

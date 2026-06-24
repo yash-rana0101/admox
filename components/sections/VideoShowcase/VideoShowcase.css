@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════
+   VideoShowcase — Scattered Frames + Wires Layout
+   ═══════════════════════════════════════════════════ */
+
+/* ─── Main Split: Left frames | Right video ─── */
+
+.showcase-layout {
+  display: grid;
+  grid-template-columns: 42% 58%;
+  gap: 0;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  position: relative;
+}
+
+@media (max-width: 1023px) {
+  .showcase-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 2rem;
+  }
+}
+
+/* ─── Frame Cluster Container ─── */
+
+.frame-cluster {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3.5;
+  max-height: 520px;
+}
+
+/* ─── Full-Width Wire Overlay ─── */
+
+.wire-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.wire-path {
+  fill: none;
+  stroke: var(--color-brand-onyx, #252F2C);
+  stroke-width: 1.5;
+  opacity: 0.25;
+}
+
+.wire-node {
+  fill: var(--color-brand-onyx, #252F2C);
+  opacity: 0.4;
+}
+
+.wire-node--main {
+  opacity: 0.55;
+  filter: drop-shadow(0 0 2px rgba(37, 47, 44, 0.3));
+}
+
+/* ─── Frame Cards ─── */
+
+.frame-card {
+  position: absolute;
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 2;
+  background: var(--color-brand-onyx, #252F2C);
+  box-shadow:
+    0 6px 28px rgba(37, 47, 44, 0.14),
+    0 0 0 1px rgba(37, 47, 44, 0.06);
+  transition: box-shadow 0.4s ease;
+  cursor: grab;
+}
+
+.frame-card:active {
+  cursor: grabbing;
+}
+
+.frame-card:hover {
+  box-shadow:
+    0 10px 40px rgba(37, 47, 44, 0.2),
+    0 0 0 1px rgba(37, 105, 81, 0.15);
+  z-index: 3;
+}
+
+.frame-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.frame-card:hover .frame-card-img {
+  transform: scale(1.06);
+}
+
+.frame-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 50%,
+    rgba(37, 47, 44, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* ─── Video Player Wrapper ─── */
+
+.showcase-video-container {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .showcase-video-container {
+    height: 100%;
+    padding-left: 8.62%; /* Align video left edge exactly with 47% converge node */
+  }
+}
+
+.showcase-video-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--color-brand-onyx, #252F2C);
+  box-shadow:
+    0 0 0 1px rgba(37, 47, 44, 0.06),
+    0 28px 72px rgba(37, 47, 44, 0.16);
+  transition: box-shadow 0.5s ease;
+}
+
+.showcase-video-wrap:hover {
+  box-shadow:
+    0 0 0 1px rgba(37, 47, 44, 0.1),
+    0 32px 80px rgba(37, 47, 44, 0.22);
+}
+
+/* ─── Counter Badge ─── */
+
+.showcase-counter {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 20;
+  font-family: var(--font-space);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(37, 47, 44, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}

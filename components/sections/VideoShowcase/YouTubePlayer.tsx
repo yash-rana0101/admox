@@ -19,13 +19,13 @@ export function YouTubePlayer({ videoId, isActive, shouldLoad }: YouTubePlayerPr
 
   return (
     <motion.div
-      className="absolute inset-0 w-full h-full overflow-hidden"
-      initial={{ opacity: 0, scale: 1.03 }}
+      className="absolute inset-0 w-full h-full overflow-hidden rounded-xl"
+      initial={{ opacity: 0, scale: 1.02 }}
       animate={{
         opacity: isActive ? 1 : 0,
-        scale: isActive ? 1 : 1.03,
+        scale: isActive ? 1 : 1.02,
       }}
-      transition={{ duration: 0.8, ease: 'easeInOut' }}
+      transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
     >
       {shouldLoad && (
         <iframe
@@ -34,7 +34,7 @@ export function YouTubePlayer({ videoId, isActive, shouldLoad }: YouTubePlayerPr
           allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"
           allowFullScreen={false}
           loading="lazy"
-          className="absolute top-1/2 left-1/2 w-[120%] h-[120%] -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0"
+          className="absolute top-1/2 left-1/2 w-[110%] h-[110%] -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0"
         />
       )}
     </motion.div>

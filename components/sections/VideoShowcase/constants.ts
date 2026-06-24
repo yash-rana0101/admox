@@ -83,3 +83,27 @@ export function buildEmbedUrl(videoId: string): string {
 
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 }
+
+export interface FrameConfig {
+  top: number;
+  left: number;
+  w: number;
+  h: number;
+}
+
+export const FRAMES: FrameConfig[] = [
+  { top: 2, left: 10.5, w: 12.6, h: 20 },
+  { top: 28, left: 0, w: 11.76, h: 20 },
+  { top: 54, left: 1.68, w: 11.76, h: 20 },
+  { top: 78, left: 7.56, w: 12.6, h: 18 },
+];
+
+export const PARALLAX_RANGES = [
+  { start: 2.4, end: -2.4 },
+  { start: 3.6, end: -1.2 },
+  { start: 1.2, end: -3.6 },
+  { start: 2.8, end: -2.0 },
+];
+
+export const LAYOUT_H = 600;
+export const CONVERGE = { x: 470, y: 300 };

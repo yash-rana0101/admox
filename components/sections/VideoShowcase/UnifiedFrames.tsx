@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef } from 'react';  
 import { motion, useTransform, AnimatePresence, useMotionValue } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
 import { FRAMES, PARALLAX_RANGES, FrameConfig } from './constants';

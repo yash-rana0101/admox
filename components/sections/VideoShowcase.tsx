@@ -36,8 +36,9 @@ export function VideoShowcase() {
 
   // Per-video local progress (0→1 within each video segment)
   const localProgress = useTransform(scrollYProgress, (v) => {
+    const index = Math.min(Math.floor(v * N), N - 1);
     const segmentSize = 1 / N;
-    const segmentStart = activeIndex * segmentSize;
+    const segmentStart = index * segmentSize;
     return Math.min(Math.max((v - segmentStart) / segmentSize, 0), 1);
   });
 
@@ -46,7 +47,7 @@ export function VideoShowcase() {
   return (
     <section ref={containerRef} className="relative w-full bg-brand-linen z-25">
       {/* ── DESKTOP: Sticky split layout ── */}
-      <div className="hidden lg:block relative" style={{ height: `${N * 200}vh` }}>
+      <div className="hidden lg:block relative" style={{ height: `${N * 100}vh` }}>
         <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col">
 
           {/* Centered Section Header */}

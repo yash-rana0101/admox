@@ -22,7 +22,7 @@ interface FrameCardProps {
   videoIndex: number;
   dragX: MotionValue<number>;
   dragY: MotionValue<number>;
-  constraintsRef: React.RefObject<HTMLDivElement>;
+  constraintsRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function FrameCard({
@@ -79,7 +79,7 @@ interface UnifiedFrameGroupProps {
   scrollProgress: MotionValue<number>;
   containerW: number;
   containerH: number;
-  constraintsRef: React.RefObject<HTMLDivElement>;
+  constraintsRef: React.RefObject<HTMLDivElement | null>;
   videoDragX: MotionValue<number>;
   videoDragY: MotionValue<number>;
 }

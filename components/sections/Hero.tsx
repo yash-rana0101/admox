@@ -67,6 +67,8 @@ export function Hero() {
         </video>
         {/* Smooth gradient fade at top edge */}
         <div className="absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-white via-white/70 to-transparent z-[1]" />
+        {/* Smooth gradient fade at bottom edge to blend with VideoShowcase background */}
+        <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-brand-linen via-brand-linen/40 to-transparent z-[2]" />
       </div>
 
       {/* Layer 3: Dome glow (brand teal/green tones) */}

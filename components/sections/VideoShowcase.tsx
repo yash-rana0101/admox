@@ -12,7 +12,7 @@ export function VideoShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
   const N = YOUTUBE_VIDEOS.length;
 
-  const videoDragX = useMotionValue(0);
+  const videoDragX  = useMotionValue(0);
   const videoDragY = useMotionValue(0);
 
   const { scrollYProgress } = useScroll({

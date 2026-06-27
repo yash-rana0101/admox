@@ -4,8 +4,9 @@ import React, { useRef, useEffect } from 'react';
 import { useScroll } from 'framer-motion';
 import { CircularGallery, CircularGalleryRef } from '../ui/circular-gallery/CircularGallery';
 import { GalleryItem } from '../ui/circular-gallery/types';
+import { useReels } from '../../hooks/useReels';
 
-const reelItems: GalleryItem[] = [
+const fallbackReelItems: GalleryItem[] = [
   {
     image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=600&auto=format&fit=crop',
     text: 'NEON DREAMS',
@@ -44,23 +45,32 @@ export function ReelsShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<CircularGalleryRef>(null);
 
+  const { reels, isLoading } = useReels();
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
   });
 
   useEffect(() => {
+    if (isLoading) return;
     return scrollYProgress.on('change', (latest) => {
       if (galleryRef.current) {
         galleryRef.current.setProgress(latest);
       }
     });
-  }, [scrollYProgress]);
+  }, [scrollYProgress, isLoading]);
+
+  // Clean the text labels completely as requested: "remove the name from the images"
+  const displayItems = (reels.length > 0 ? reels : fallbackReelItems).map(item => ({
+    ...item,
+    text: '' // Set to empty string so WebGL doesn't render any text meshes
+  }));
 
   return (
     <section ref={containerRef} className="relative w-full z-25 bg-brand-linen">
       {/* DESKTOP STICKY SCROLL VIEW */}
-      <div className="hidden lg:block h-[220vh] relative">
+      <div className="hidden lg:block h-[300vh] relative">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-16 bg-brand-linen">
           
           {/* Subtle Ambient Backdrop Glows */}
@@ -73,25 +83,36 @@ export function ReelsShowcase() {
               PORTFOLIO HIGHLIGHT
             </span>
             <h2 className="font-sora text-4xl lg:text-5xl font-bold tracking-tight text-brand-onyx">
-              AI REELS LAB
+              AI GENERATED IMAGE POST CONTENT
             </h2>
             <p className="font-sans text-brand-onyx/75 text-base font-light max-w-2xl mx-auto">
-              Vertical cinematic micro-content engineered programmatically. Zero physical setups, maximum aesthetic immersion.
+              High-fidelity social graphics and post assets engineered programmatically. Zero physical setups, maximum aesthetic immersion.
             </p>
           </div>
 
           {/* WebGL Canvas Container */}
           <div className="relative z-10 w-full h-[55vh] flex items-center justify-center">
-            <CircularGallery
-              ref={galleryRef}
-              items={reelItems}
-              bend={4}
-              textColor="#252F2C" // Brand Onyx to blend with light mode
-              borderRadius={0.06}
-              font="bold 28px Space Grotesk"
-              fontUrl="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
-              scrollEase={0.04}
-            />
+            {isLoading ? (
+              <div className="flex gap-6 overflow-hidden w-full max-w-5xl justify-center py-8">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-[160px] lg:w-[200px] aspect-[3/4] rounded-2xl bg-brand-onyx/5 animate-pulse border border-brand-teal/5"
+                  />
+                ))}
+              </div>
+            ) : (
+              <CircularGallery
+                ref={galleryRef}
+                items={displayItems}
+                bend={4}
+                textColor="#252F2C" // Brand Onyx to blend with light mode
+                borderRadius={0.06}
+                font="bold 28px Space Grotesk"
+                fontUrl="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
+                scrollEase={0.04}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -105,38 +126,40 @@ export function ReelsShowcase() {
             PORTFOLIO HIGHLIGHT
           </span>
           <h2 className="font-sora text-3xl font-bold text-brand-onyx">
-            AI REELS LAB
+            AI GENERATED IMAGE POST CONTENT
           </h2>
           <p className="font-sans text-brand-onyx/70 text-sm max-w-sm mx-auto">
-            Vertical cinematic micro-content engineered programmatically.
+            High-fidelity social graphics and post assets engineered programmatically.
           </p>
         </div>
 
         {/* Horizontal Drag Slider */}
-        <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-none w-full scroll-smooth">
-          {reelItems.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex-shrink-0 w-[240px] aspect-[9/16] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md snap-center bg-white group"
-            >
-              <img
-                src={item.image}
-                alt={item.text}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
+        {isLoading ? (
+          <div className="flex overflow-x-auto gap-6 pb-8 scrollbar-none w-full">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 w-[240px] aspect-[3/4] rounded-2xl bg-brand-onyx/5 animate-pulse border border-brand-teal/5"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-onyx/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <span className="font-space text-[9px] tracking-widest text-brand-teal font-bold uppercase mb-1 block">
-                  REEL 0{idx + 1}
-                </span>
-                <h3 className="font-sora text-base font-bold text-white uppercase tracking-wide">
-                  {item.text}
-                </h3>
+            ))}
+          </div>
+        ) : (
+          <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-none w-full scroll-smooth">
+            {displayItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex-shrink-0 w-[240px] aspect-[3/4] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md snap-center bg-white group"
+              >
+                <img
+                  src={item.image}
+                  alt={item.text}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Mobile drag helper caption */}
         <div className="text-center">
@@ -148,3 +171,4 @@ export function ReelsShowcase() {
     </section>
   );
 }
+export default ReelsShowcase;

@@ -63,7 +63,7 @@ export class App {
       // Map progress (0 to 1) to target position.
       // A full loop of all items is exactly half of totalWidth (since they are concatenated once).
       const loopWidth = totalWidth * 0.5;
-      this.scroll.target = progress * loopWidth;
+      this.scroll.target = progress * loopWidth * 0.25;
     }
   }
 

@@ -80,7 +80,7 @@ export function EntryScreen({ onComplete, onStartEnter }: EntryScreenProps) {
           <img
             src="/logo-bgrm.png"
             alt="Admox Media"
-            className="w-[400px] md:w-[720px] h-auto object-contain select-none pointer-events-none max-w-none"
+            className="w-[190px] md:w-[340px] h-auto object-contain select-none pointer-events-none max-w-none"
           />
         </motion.div>
       </motion.div>
@@ -101,7 +101,7 @@ export function EntryScreen({ onComplete, onStartEnter }: EntryScreenProps) {
           <img
             src="/logo-bgrm.png"
             alt="Admox Media"
-            className="w-[400px] md:w-[720px] h-auto object-contain select-none pointer-events-none max-w-none"
+            className="w-[190px] md:w-[340px] h-auto object-contain select-none pointer-events-none max-w-none"
           />
         </motion.div>
       </motion.div>

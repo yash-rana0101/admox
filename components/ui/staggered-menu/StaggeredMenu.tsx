@@ -147,7 +147,7 @@ export function StaggeredMenu(props: StaggeredMenuProps) {
               <img
                 src={currentLogo}
                 alt="Logo"
-                className="w-14 h-14 object-contain transition-transform duration-500 group-hover:rotate-12"
+                className="w-8 h-8 object-contain transition-transform duration-500 group-hover:rotate-12"
                 draggable={false}
               />
               <span className="font-sora text-base font-bold tracking-tight">

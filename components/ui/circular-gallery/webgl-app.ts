@@ -1,4 +1,4 @@
-import { Renderer, Camera, Transform, Plane, OGLRenderingContext } from 'ogl';
+import { Renderer, Camera, Transform, Plane, OGLRenderingContext, Raycast, Vec2 } from 'ogl';
 import { GalleryItem, AppConfig } from './types';
 import { Media } from './webgl-media';
 import { debounce, lerp } from './utils';
@@ -30,8 +30,11 @@ export class App {
   boundOnTouchDown!: (e: any) => void;
   boundOnTouchMove!: (e: any) => void;
   boundOnTouchUp!: () => void;
+  boundOnClick!: (e: MouseEvent) => void;
 
   isDriven = false;
+  onItemClick?: (imageUrl: string, index: number) => void;
+  raycast!: Raycast;
 
   constructor(container: HTMLDivElement, config: AppConfig & { isDriven?: boolean }) {
     document.documentElement.classList.remove('no-js');
@@ -40,6 +43,7 @@ export class App {
     this.scroll = { ease: config.scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
     this.isDriven = !!config.isDriven;
+    this.onItemClick = config.onItemClick;
     
     this.createRenderer();
     this.createCamera();
@@ -48,6 +52,10 @@ export class App {
     this.createGeometry();
     this.createMedias(config.items, config.bend, config.textColor, config.borderRadius, config.font);
     this.update();
+    
+    this.raycast = new Raycast();
+    this.boundOnClick = this.onClick.bind(this);
+    this.gl.canvas.addEventListener('click', this.boundOnClick);
     
     if (!this.isDriven) {
       this.addEventListeners();
@@ -63,7 +71,7 @@ export class App {
       // Map progress (0 to 1) to target position.
       // A full loop of all items is exactly half of totalWidth (since they are concatenated once).
       const loopWidth = totalWidth * 0.5;
-      this.scroll.target = progress * loopWidth * 0.25;
+      this.scroll.target = progress * loopWidth;
     }
   }
 
@@ -207,6 +215,9 @@ export class App {
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this.boundOnResize);
+    if (this.gl && this.gl.canvas && this.boundOnClick) {
+      this.gl.canvas.removeEventListener('click', this.boundOnClick);
+    }
     if (!this.isDriven) {
       window.removeEventListener('mousewheel', this.boundOnWheel);
       window.removeEventListener('wheel', this.boundOnWheel);
@@ -219,6 +230,28 @@ export class App {
     }
     if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {
       this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas);
+    }
+  }
+
+  onClick(e: MouseEvent) {
+    if (!this.gl || !this.gl.canvas) return;
+    const rect = this.gl.canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    const mouse = new Vec2(x, y);
+
+    this.raycast.castMouse(this.camera, mouse);
+    const meshes = this.medias.map(m => m.plane);
+    const hits = this.raycast.intersectBounds(meshes);
+
+    if (hits.length > 0) {
+      const hitMesh = hits[0];
+      const clickedMedia = this.medias.find(m => m.plane === hitMesh);
+      if (clickedMedia && this.onItemClick) {
+        const uniqueLength = this.medias.length / 2;
+        const actualIndex = clickedMedia.index % uniqueLength;
+        this.onItemClick(clickedMedia.image, actualIndex);
+      }
     }
   }
 }

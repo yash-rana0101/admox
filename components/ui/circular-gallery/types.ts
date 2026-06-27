@@ -1,6 +1,7 @@
 export interface GalleryItem {
   image: string;
   text: string;
+  fullScale?: string;
 }
 
 export interface CircularGalleryProps {
@@ -13,6 +14,7 @@ export interface CircularGalleryProps {
   scrollSpeed?: number;
   scrollEase?: number;
   scrollProgress?: number; // Driven externally by page sticky scroll
+  onItemClick?: (imageUrl: string, index: number) => void;
 }
 
 export interface AppConfig {
@@ -23,4 +25,5 @@ export interface AppConfig {
   font: string;
   scrollSpeed: number;
   scrollEase: number;
+  onItemClick?: (imageUrl: string, index: number) => void;
 }

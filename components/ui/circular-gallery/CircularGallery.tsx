@@ -19,7 +19,8 @@ const CircularGallery = forwardRef<CircularGalleryRef, CircularGalleryProps>(
     font = 'bold 30px Figtree',
     fontUrl,
     scrollSpeed = 2,
-    scrollEase = 0.05
+    scrollEase = 0.05,
+    onItemClick
   }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const appRef = useRef<App | null>(null);
@@ -35,6 +36,7 @@ const CircularGallery = forwardRef<CircularGalleryRef, CircularGalleryProps>(
 
     useEffect(() => {
       if (hasError || !containerRef.current) return;
+      console.log("CircularGallery useEffect running!");
       let app: App | null = null;
       let isMounted = true;
 
@@ -49,7 +51,8 @@ const CircularGallery = forwardRef<CircularGalleryRef, CircularGalleryProps>(
             font: resolvedFont,
             scrollSpeed,
             scrollEase,
-            isDriven: true
+            isDriven: true,
+            onItemClick
           });
           appRef.current = app;
         } catch (error) {
@@ -66,13 +69,14 @@ const CircularGallery = forwardRef<CircularGalleryRef, CircularGalleryProps>(
       });
 
       return () => {
+        console.log("CircularGallery cleanup running!");
         isMounted = false;
         if (app) {
           app.destroy();
         }
         appRef.current = null;
       };
-    }, [items, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase, hasError]);
+    }, [items, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase, hasError, onItemClick]);
 
     if (hasError) {
       return (
@@ -80,10 +84,12 @@ const CircularGallery = forwardRef<CircularGalleryRef, CircularGalleryProps>(
           {(items ?? []).map((item, idx) => (
             <div
               key={idx}
-              className="flex-shrink-0 w-[200px] aspect-[3/4] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md bg-white group"
+              className="flex-shrink-0 w-[200px] aspect-[3/4] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md bg-white group cursor-pointer"
+              onClick={() => onItemClick && onItemClick(item.image, idx)}
             >
               <img
                 src={item.image}
+                crossOrigin="anonymous"
                 alt={item.text}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />

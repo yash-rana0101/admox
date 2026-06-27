@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { useScroll } from 'framer-motion';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import { useScroll, motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import { CircularGallery, CircularGalleryRef } from '../ui/circular-gallery/CircularGallery';
 import { GalleryItem } from '../ui/circular-gallery/types';
 import { useReels } from '../../hooks/useReels';
@@ -46,6 +47,7 @@ export function ReelsShowcase() {
   const galleryRef = useRef<CircularGalleryRef>(null);
 
   const { reels, isLoading } = useReels();
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -61,16 +63,38 @@ export function ReelsShowcase() {
     });
   }, [scrollYProgress, isLoading]);
 
+  // Lock body scroll when modal is active
+  useEffect(() => {
+    if (activeImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeImage]);
+
+  const handleImageClick = useCallback((imageUrl: string) => {
+    setActiveImage(imageUrl);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setActiveImage(null);
+  }, []);
+
   // Clean the text labels completely as requested: "remove the name from the images"
-  const displayItems = (reels.length > 0 ? reels : fallbackReelItems).map(item => ({
-    ...item,
-    text: '' // Set to empty string so WebGL doesn't render any text meshes
-  }));
+  const displayItems = useMemo(() => {
+    return (reels.length > 0 ? reels : fallbackReelItems).map(item => ({
+      ...item,
+      text: '' // Set to empty string so WebGL doesn't render any text meshes
+    }));
+  }, [reels]);
 
   return (
     <section ref={containerRef} className="relative w-full z-25 bg-brand-linen">
       {/* DESKTOP STICKY SCROLL VIEW */}
-      <div className="hidden lg:block h-[300vh] relative">
+      <div className="hidden lg:block h-[700vh] relative">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between py-16 bg-brand-linen">
           
           {/* Subtle Ambient Backdrop Glows */}
@@ -111,6 +135,10 @@ export function ReelsShowcase() {
                 font="bold 28px Space Grotesk"
                 fontUrl="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
                 scrollEase={0.04}
+                onItemClick={(imageUrl, index) => {
+                  const item = displayItems[index];
+                  handleImageClick(item?.fullScale || imageUrl);
+                }}
               />
             )}
           </div>
@@ -148,10 +176,12 @@ export function ReelsShowcase() {
             {displayItems.map((item, idx) => (
               <div
                 key={idx}
-                className="flex-shrink-0 w-[240px] aspect-[3/4] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md snap-center bg-white group"
+                onClick={() => handleImageClick(item.fullScale || item.image)}
+                className="flex-shrink-0 w-[240px] aspect-[3/4] rounded-2xl overflow-hidden relative border border-brand-teal/10 shadow-md snap-center bg-white group cursor-pointer"
               >
                 <img
                   src={item.image}
+                  crossOrigin="anonymous"
                   alt={item.text}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
@@ -168,6 +198,45 @@ export function ReelsShowcase() {
           </span>
         </div>
       </div>
+
+      {/* Pop-up Image Modal */}
+      <AnimatePresence>
+        {activeImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={handleCloseModal}
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 cursor-zoom-out select-none"
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+              onClick={(e) => e.stopPropagation()} // Prevent close on clicking inner image
+              className="relative max-w-4xl max-h-[85vh] w-full flex items-center justify-center pointer-events-auto"
+            >
+              <img
+                src={activeImage}
+                crossOrigin="anonymous"
+                alt="AI Generated Content Zoom"
+                className="max-h-[80vh] w-auto object-contain rounded-xl shadow-2xl border border-white/10 select-none pointer-events-none"
+              />
+              <button
+                onClick={handleCloseModal}
+                className="absolute -top-12 right-0 lg:-right-12 lg:top-0 text-white hover:text-brand-teal transition-all p-2 rounded-full bg-brand-onyx/40 backdrop-blur-sm border border-white/10 hover:scale-105 duration-200 cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

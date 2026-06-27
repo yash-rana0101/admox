@@ -76,66 +76,70 @@ export async function GET() {
       }
     }
 
+    const isVercel = process.env.VERCEL === '1';
     let needsWrite = false;
 
-    // Check if any local file is missing from mapping or modified, and upload it dynamically
-    for (const file of imageFiles) {
-      const filePath = path.join(assetsDir, file);
-      const stats = fs.statSync(filePath);
-      
-      const cached = mapping[file];
-      const isModified = cached && (cached.size !== stats.size || cached.mtime !== stats.mtime.getTime());
+    // Skip dynamic uploading on Vercel in production to prevent read-only filesystem errors and API call overhead
+    if (!isVercel) {
+      // Check if any local file is missing from mapping or modified, and upload it dynamically
+      for (const file of imageFiles) {
+        const filePath = path.join(assetsDir, file);
+        const stats = fs.statSync(filePath);
+        
+        const cached = mapping[file];
+        const isModified = cached && (cached.size !== stats.size || cached.mtime !== stats.mtime.getTime());
 
-      if (!cached || isModified) {
-        try {
-          const publicId = `reels/${file.replace(/\./g, '_')}`;
-          
-          let uploadFilePath = filePath;
-          let tempCompressedPath = '';
-          
-          // If file size exceeds 9.5MB, compress it on-the-fly to JPEG (retaining full width/height) to stay under Cloudinary's 10MB limit
-          if (stats.size > 9.5 * 1024 * 1024) {
-            // Use os.tmpdir() to write temporary files in serverless/Vercel environments where the project directory is read-only
-            tempCompressedPath = path.join(os.tmpdir(), `temp_${file.replace(/\./g, '_')}.jpg`);
-            console.log(`Image ${file} is too large (${(stats.size / 1024 / 1024).toFixed(2)} MB). Compressing to full-scale JPEG...`);
+        if (!cached || isModified) {
+          try {
+            const publicId = `reels/${file.replace(/\./g, '_')}`;
             
-            await sharp(filePath)
-              .jpeg({ quality: 90, progressive: true })
-              .toFile(tempCompressedPath);
+            let uploadFilePath = filePath;
+            let tempCompressedPath = '';
+            
+            // If file size exceeds 9.5MB, compress it on-the-fly to JPEG (retaining full width/height) to stay under Cloudinary's 10MB limit
+            if (stats.size > 9.5 * 1024 * 1024) {
+              // Use os.tmpdir() to write temporary files in serverless/Vercel environments where the project directory is read-only
+              tempCompressedPath = path.join(os.tmpdir(), `temp_${file.replace(/\./g, '_')}.jpg`);
+              console.log(`Image ${file} is too large (${(stats.size / 1024 / 1024).toFixed(2)} MB). Compressing to full-scale JPEG...`);
               
-            uploadFilePath = tempCompressedPath;
-          }
-
-          console.log(`Uploading ${isModified ? 'modified' : 'new'} reel image ${file} to Cloudinary...`);
-          
-          const uploadResult = await cloudinary.uploader.upload(uploadFilePath, {
-            public_id: publicId,
-            overwrite: true,
-            invalidate: true
-          });
-
-          // Clean up temp file if created
-          if (tempCompressedPath && fs.existsSync(tempCompressedPath)) {
-            try {
-              fs.unlinkSync(tempCompressedPath);
-            } catch (unlinkError) {
-              console.error(`Failed to delete temp file ${tempCompressedPath}:`, unlinkError);
+              await sharp(filePath)
+                .jpeg({ quality: 90, progressive: true })
+                .toFile(tempCompressedPath);
+                
+              uploadFilePath = tempCompressedPath;
             }
-          }
 
-          mapping[file] = {
-            original: uploadResult.secure_url,
-            // Optimized version: resized to max 1000px, auto quality, auto format for smooth performance
-            optimized: uploadResult.secure_url.replace('/upload/', '/upload/q_auto,f_auto,w_1000,c_limit/'),
-            // Full-scale version: original width/height, auto quality, auto format
-            fullScale: uploadResult.secure_url.replace('/upload/', '/upload/q_auto,f_auto/'),
-            size: stats.size,
-            mtime: stats.mtime.getTime()
-          };
-          needsWrite = true;
-          console.log(`  Uploaded successfully: ${uploadResult.secure_url}`);
-        } catch (uploadError) {
-          console.error(`Failed to upload ${file} to Cloudinary:`, uploadError);
+            console.log(`Uploading ${isModified ? 'modified' : 'new'} reel image ${file} to Cloudinary...`);
+            
+            const uploadResult = await cloudinary.uploader.upload(uploadFilePath, {
+              public_id: publicId,
+              overwrite: true,
+              invalidate: true
+            });
+
+            // Clean up temp file if created
+            if (tempCompressedPath && fs.existsSync(tempCompressedPath)) {
+              try {
+                fs.unlinkSync(tempCompressedPath);
+              } catch (unlinkError) {
+                console.error(`Failed to delete temp file ${tempCompressedPath}:`, unlinkError);
+              }
+            }
+
+            mapping[file] = {
+              original: uploadResult.secure_url,
+              // Optimized version: resized to max 1000px, auto quality, auto format for smooth performance
+              optimized: uploadResult.secure_url.replace('/upload/', '/upload/q_auto,f_auto,w_1000,c_limit/'),
+              // Full-scale version: original width/height, auto quality, auto format
+              fullScale: uploadResult.secure_url.replace('/upload/', '/upload/q_auto,f_auto/'),
+              size: stats.size,
+              mtime: stats.mtime.getTime()
+            };
+            needsWrite = true;
+            console.log(`  Uploaded successfully: ${uploadResult.secure_url}`);
+          } catch (uploadError) {
+            console.error(`Failed to upload ${file} to Cloudinary:`, uploadError);
+          }
         }
       }
     }

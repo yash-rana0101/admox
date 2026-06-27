@@ -91,6 +91,11 @@ export function ReelsShowcase() {
     }));
   }, [reels]);
 
+  const handleGalleryItemClick = useCallback((imageUrl: string, index: number) => {
+    const item = displayItems[index];
+    handleImageClick(item?.fullScale || imageUrl);
+  }, [displayItems, handleImageClick]);
+
   return (
     <section ref={containerRef} className="relative w-full z-25 bg-brand-linen">
       {/* DESKTOP STICKY SCROLL VIEW */}
@@ -135,10 +140,7 @@ export function ReelsShowcase() {
                 font="bold 28px Space Grotesk"
                 fontUrl="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
                 scrollEase={0.04}
-                onItemClick={(imageUrl, index) => {
-                  const item = displayItems[index];
-                  handleImageClick(item?.fullScale || imageUrl);
-                }}
+                onItemClick={handleGalleryItemClick}
               />
             )}
           </div>

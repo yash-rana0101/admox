@@ -52,8 +52,8 @@ export function Hero() {
       {/* Layer 1: White base */}
       <div className="absolute inset-0 bg-white z-0" />
 
-      {/* Layer 2: Video background pinned to bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[55vh] z-[1] pointer-events-none select-none">
+      {/* Layer 2: Video background covering the entire Hero section */}
+      <div className="absolute inset-0 z-[1] pointer-events-none select-none">
         <video
           ref={videoRef}
           autoPlay
@@ -65,17 +65,15 @@ export function Hero() {
         >
           <source src="/hero-landscape.mp4" type="video/mp4" />
         </video>
-        {/* Smooth gradient fade at top edge */}
-        <div className="absolute top-0 left-0 right-0 h-44 bg-gradient-to-b from-white via-white/70 to-transparent z-[1]" />
         {/* Smooth gradient fade at bottom edge to blend with VideoShowcase background */}
         <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-brand-linen via-brand-linen/40 to-transparent z-[2]" />
       </div>
 
       {/* Layer 3: Dome glow (brand teal/green tones) */}
-      <div
+      {/* <div
         className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-square rounded-full bg-gradient-to-b from-brand-subtle/50 via-brand-linen/30 to-transparent z-[2] pointer-events-none"
         style={{ maskImage: 'linear-gradient(to bottom, black 30%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 65%)' }}
-      />
+      /> */}
 
       {/* Layer 4: Floating Logo Arc */}
       <div className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[88%] max-w-[880px] aspect-square z-[3] pointer-events-none">

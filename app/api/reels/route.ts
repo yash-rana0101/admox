@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
-import sharp from 'sharp';
 
 // Configure Cloudinary with user credentials
 cloudinary.config({ 
@@ -81,7 +80,7 @@ export async function GET() {
 
     // Skip dynamic uploading on Vercel in production to prevent read-only filesystem errors and API call overhead
     if (!isVercel) {
-      // Check if any local file is missing from mapping or modified, and upload it dynamically
+      const sharp = (await import('sharp')).default;
       for (const file of imageFiles) {
         const filePath = path.join(assetsDir, file);
         const stats = fs.statSync(filePath);

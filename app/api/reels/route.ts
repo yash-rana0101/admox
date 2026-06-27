@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import sharp from 'sharp';
 
@@ -94,7 +95,8 @@ export async function GET() {
           
           // If file size exceeds 9.5MB, compress it on-the-fly to JPEG (retaining full width/height) to stay under Cloudinary's 10MB limit
           if (stats.size > 9.5 * 1024 * 1024) {
-            tempCompressedPath = path.join(process.cwd(), 'public', `temp_${file.replace(/\./g, '_')}.jpg`);
+            // Use os.tmpdir() to write temporary files in serverless/Vercel environments where the project directory is read-only
+            tempCompressedPath = path.join(os.tmpdir(), `temp_${file.replace(/\./g, '_')}.jpg`);
             console.log(`Image ${file} is too large (${(stats.size / 1024 / 1024).toFixed(2)} MB). Compressing to full-scale JPEG...`);
             
             await sharp(filePath)

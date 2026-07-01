@@ -90,11 +90,11 @@ export function Hero() {
 
 
           {/* Headline */}
-          <h1 className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-normal text-brand-onyx leading-[1.12] tracking-tight max-w-3xl flex flex-col items-center gap-2">
-            <AnimeText text="Your Heaven for" className="font-serif" tag="span" splitBy="words" delay={100} />
+          <h1 className="font-inter text-[40px] sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-brand-onyx leading-[1.12] tracking-tight max-w-3xl flex flex-col items-center gap-2">
+            <AnimeText text="Your Heaven for" className="font-inter" tag="span" splitBy="words" delay={100} />
             <span className="flex flex-wrap items-center justify-center gap-x-3">
-              <AnimeText text="Seamles " className="italic font-serif text-brand-teal" tag="span" splitBy="chars" delay={400} />
-              <AnimeText text="AI Solutions" className="font-serif" tag="span" splitBy="words" delay={700} />
+              <AnimeText text="Seamles " className="italic font-inter text-brand-teal" tag="span" splitBy="chars" delay={400} />
+              <AnimeText text="AI Solutions" className="font-inter" tag="span" splitBy="words" delay={700} />
             </span>
           </h1>
 

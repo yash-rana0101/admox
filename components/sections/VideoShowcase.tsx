@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, AnimatePresence, motion, useMotionValue } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import { YouTubePlayer } from './VideoShowcase/YouTubePlayer';
 import { UnifiedFrames } from './VideoShowcase/UnifiedFrames';
 import { YOUTUBE_VIDEOS } from './VideoShowcase/constants';
@@ -10,6 +11,7 @@ import './VideoShowcase/VideoShowcase.css';
 export function VideoShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
   const N = YOUTUBE_VIDEOS.length;
 
   const videoDragX  = useMotionValue(0);
@@ -105,9 +107,25 @@ export function VideoShowcase() {
                         videoId={video.id}
                         isActive={index === activeIndex}
                         shouldLoad={shouldLoad}
+                        isMuted={isMuted}
                       />
                     );
                   })}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="showcase-mute-btn"
+                    aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-[18px] h-[18px]" />
+                    ) : (
+                      <Volume2 className="w-[18px] h-[18px]" />
+                    )}
+                  </button>
                   <div className="showcase-counter">
                     {String(activeIndex + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
                   </div>

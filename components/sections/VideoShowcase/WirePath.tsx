@@ -42,7 +42,7 @@ export function WirePath({
       const frameTop = frame.top + currentOffset;
 
       const cardWidth = frame.w * 10;
-      const cardHeight = frame.h * 6;
+      const cardHeight = (containerW / containerH) * frame.w * 3.375;
       const cardLeft = frame.left * 10 + (dx / containerW) * 1000;
       const cardTop = (frameTop * 6) + (dy / containerH) * 600;
       const cardCenterX = cardLeft + cardWidth / 2;

@@ -11,11 +11,31 @@ import { buildEmbedUrl } from './constants';
  * The iframe only renders when `shouldLoad` is true (lazy loading).
  * Autoplay is driven by the `isActive` prop.
  */
-export function YouTubePlayer({ videoId, isActive, shouldLoad }: YouTubePlayerProps) {
+export function YouTubePlayer({ videoId, isActive, shouldLoad, isMuted }: YouTubePlayerProps) {
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  // We only rebuild the URL when the videoId changes so the iframe does not reload.
+  // It initializes with the current isMuted state.
   const embedUrl = useMemo(
-    () => buildEmbedUrl(videoId),
+    () => buildEmbedUrl(videoId, isMuted),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [videoId]
   );
+
+  // Dynamically control the volume/mute state of the active iframe
+  React.useEffect(() => {
+    if (!iframeRef.current || !isActive || !shouldLoad) return;
+
+    const func = isMuted ? 'mute' : 'unMute';
+    try {
+      iframeRef.current.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func, args: [] }),
+        '*'
+      );
+    } catch (err) {
+      console.error('Error posting mute command to YouTube iframe:', err);
+    }
+  }, [isMuted, isActive, shouldLoad]);
 
   return (
     <motion.div
@@ -29,6 +49,7 @@ export function YouTubePlayer({ videoId, isActive, shouldLoad }: YouTubePlayerPr
     >
       {shouldLoad && (
         <iframe
+          ref={iframeRef}
           src={embedUrl}
           title={`Showcase video ${videoId}`}
           allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture"

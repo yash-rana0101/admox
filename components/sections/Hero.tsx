@@ -54,17 +54,16 @@ export function Hero() {
 
       {/* Layer 2: Video background covering the entire Hero section */}
       <div className="absolute inset-0 z-[1] pointer-events-none select-none">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
+        <img
+          // ref={videoRef}
+          // autoPlay
+          // loop
+          // muted
+          // playsInline
+          // preload="metadata"
           className="w-full h-full object-cover object-bottom"
-        >
-          <source src="/hero-landscape.mp4" type="video/mp4" />
-        </video>
+          src="/hero.png"
+        />
         {/* Smooth gradient fade at bottom edge to blend with VideoShowcase background */}
         <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-brand-linen via-brand-linen/40 to-transparent z-[2]" />
       </div>

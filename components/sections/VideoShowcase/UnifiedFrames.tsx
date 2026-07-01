@@ -54,7 +54,8 @@ function FrameCard({
         top: topStyle,
         left: `${frame.left}%`,
         width: `${frame.w}%`,
-        height: `${frame.h}%`,
+        height: 'auto',
+        aspectRatio: '16 / 9',
         x: dragX,
         y: dragY,
       }}

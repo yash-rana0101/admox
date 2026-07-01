@@ -12,6 +12,7 @@ export interface YouTubePlayerProps {
   videoId: string;
   isActive: boolean;
   shouldLoad: boolean;
+  isMuted: boolean;
 }
 
 export interface VideoFrameCardProps {

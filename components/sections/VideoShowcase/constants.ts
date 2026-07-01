@@ -16,36 +16,36 @@ const videoData: Array<{
   thumbnails: string[];
 }> = [
   {
-    url: 'https://youtu.be/8MkuWYkcnBs',
+    url: 'https://youtu.be/2yLDj65QMEI',
     title: 'Brand Film',
     subtitle: 'Visual stories that define your identity',
     thumbnails: [
-      'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=80',
+      '/assets/videos/1/1.png',
+      '/assets/videos/1/2.png',
+      '/assets/videos/1/3.png',
+      '/assets/videos/1/4.png',
     ],
   },
   {
-    url: 'https://youtu.be/52F2O2RKYiI',
+    url: 'https://youtu.be/oBS6GxwFPkE',
     title: 'Promotional Shoot',
     subtitle: 'Content that captures and converts',
     thumbnails: [
-      'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500&auto=format&fit=crop&q=80',
+      '/assets/videos/2/1.png',
+      '/assets/videos/2/2.png',
+      '/assets/videos/2/3.png',
+      '/assets/videos/2/4.png',
     ],
   },
   {
-    url: 'https://youtu.be/9wqWt3KkQZk',
+    url: 'https://youtu.be/rbxpPZP5gEA',
     title: 'Video Editing',
     subtitle: 'Raw footage to compelling narrative',
     thumbnails: [
-      'https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1533702165324-66678e2069b2?w=500&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=500&auto=format&fit=crop&q=80',
+      '/assets/videos/3/1.png',
+      '/assets/videos/3/2.png',
+      '/assets/videos/3/3.png',
+      '/assets/videos/3/4.png',
     ],
   },
 ];
@@ -65,10 +65,10 @@ export const YOUTUBE_VIDEOS: YouTubeVideo[] = videoData.map((entry) => ({
  * - Always autoplay (muted videos are allowed by browser policy)
  * - Loop continuously
  */
-export function buildEmbedUrl(videoId: string): string {
+export function buildEmbedUrl(videoId: string, isMuted: boolean = true): string {
   const params = new URLSearchParams({
     autoplay: '1',
-    mute: '1',
+    mute: isMuted ? '1' : '0',
     loop: '1',
     controls: '0',
     modestbranding: '1',
@@ -79,6 +79,7 @@ export function buildEmbedUrl(videoId: string): string {
     fs: '0', // hide fullscreen button
     playlist: videoId, // required for single-video loop
     playsinline: '1',
+    enablejsapi: '1', // required for iframe api control
   });
 
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
@@ -92,10 +93,10 @@ export interface FrameConfig {
 }
 
 export const FRAMES: FrameConfig[] = [
-  { top: 2, left: 10.5, w: 12.6, h: 20 },
-  { top: 28, left: 0, w: 11.76, h: 20 },
-  { top: 54, left: 1.68, w: 11.76, h: 20 },
-  { top: 78, left: 7.56, w: 12.6, h: 18 },
+  { top: 2, left: 10.5, w: 18.0, h: 20 },
+  { top: 26, left: 0, w: 18.0, h: 20 },
+  { top: 50, left: 1.68, w: 18.0, h: 20 },
+  { top: 73, left: 7.56, w: 16.0, h: 18 },
 ];
 
 export const PARALLAX_RANGES = [
